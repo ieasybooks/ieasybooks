@@ -2,7 +2,12 @@
 #
 #                                   Prefix Verb URI Pattern                                                                                       Controller#Action
 #                                               /assets                                                                                           Propshaft::Server
+#                               pages_home GET  /pages/home(.:format)                                                                             pages#home
 #                       rails_health_check GET  /up(.:format)                                                                                     rails/health#show
+#                                               /(*any)(.:format)                                                                                 redirect(301, subdomain: ) {:subdomain=>"www"}
+#                                     root GET  /                                                                                                 pages#home
+#                                    watch GET  /watch(.:format)                                                                                  baheth#redirect_by_youtube_video_id
+#                                 playlist GET  /playlist(.:format)                                                                               baheth#redirect_by_youtube_playlist_id
 #         turbo_recede_historical_location GET  /recede_historical_location(.:format)                                                             turbo/native/navigation#recede
 #         turbo_resume_historical_location GET  /resume_historical_location(.:format)                                                             turbo/native/navigation#resume
 #        turbo_refresh_historical_location GET  /refresh_historical_location(.:format)                                                            turbo/native/navigation#refresh
@@ -37,6 +42,11 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get 'up' => 'rails/health#show', as: :rails_health_check
 
+  match '(*any)', to: redirect(subdomain: ''), via: :all, constraints: { subdomain: 'www' }
+
   # Defines the root path route ("/")
-  # root "posts#index"
+  root 'pages#home'
+
+  get '/watch', to: 'baheth#redirect_by_youtube_video_id'
+  get '/playlist', to: 'baheth#redirect_by_youtube_playlist_id'
 end

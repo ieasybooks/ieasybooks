@@ -1,0 +1,2 @@
+module BahethHelper
+end
