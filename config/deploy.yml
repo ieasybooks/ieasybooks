@@ -14,20 +14,20 @@ servers:
     hosts:
       - 84.46.251.182
     options:
-      network: "ieasybooks_network"
+      network: "kamal_network"
     labels:
-      traefik.http.routers.baheth.entrypoints: websecure
-      traefik.http.routers.baheth.rule: Host(`ieasybooks.com`)
+      traefik.http.routers.ieasybooks.entrypoints: websecure
+      traefik.http.routers.ieasybooks.rule: Host(`ieasybooks.com`)
       traefik.http.routers.baheth.tls: true
-      traefik.http.routers.baheth.tls.certresolver: letsencrypt
+      traefik.http.routers.ieasybooks.tls.certresolver: letsencrypt
 
 traefik:
   options:
-    network: "ieasybooks_network"
+    network: "kamal_network"
     publish:
       - "443:443"
     volume:
-      - "/ieasybooks_letsencrypt/acme.json:/letsencrypt/acme.json"
+      - "/letsencrypt/acme.json:/letsencrypt/acme.json"
   args:
     entryPoints.web.address: ":80"
     entryPoints.websecure.address: ":443"
@@ -35,7 +35,7 @@ traefik:
     entryPoints.web.http.redirections.entryPoint.scheme: https
     entryPoints.web.http.redirections.entrypoint.permanent: true
     certificatesResolvers.letsencrypt.acme.email: "easybooksdev@gmail.com"
-    certificatesResolvers.letsencrypt.acme.storage: "/ieasybooks_letsencrypt/acme.json"
+    certificatesResolvers.letsencrypt.acme.storage: "/letsencrypt/acme.json"
     certificatesResolvers.letsencrypt.acme.httpchallenge: true
     certificatesResolvers.letsencrypt.acme.httpchallenge.entrypoint: web
 
@@ -53,7 +53,7 @@ accessories:
     roles:
       - web
     options:
-      network: "ieasybooks_network"
+      network: "kamal_network"
     env:
       clear:
         POSTGRES_DB: ieasybooks_production
