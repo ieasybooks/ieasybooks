@@ -74,7 +74,6 @@ healthcheck:
   port: 3001
   exposed_port: 4000
   log_lines: 10_000
-  max_attempts: 25
 
 asset_path: /rails/public/assets
 
