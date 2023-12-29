@@ -77,3 +77,5 @@ healthcheck:
   max_attempts: 25
 
 asset_path: /rails/public/assets
+
+run_directory: .ieasybooks-kamal
