@@ -11,7 +11,7 @@ WORKDIR /rails
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development:test"
 
 
 # Throw-away build stage to reduce size of final image
@@ -71,5 +71,5 @@ USER rails:rails
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 3001
 CMD ["./bin/rails", "server"]
