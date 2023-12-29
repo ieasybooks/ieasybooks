@@ -18,7 +18,7 @@ servers:
     labels:
       traefik.http.routers.ieasybooks.entrypoints: websecure
       traefik.http.routers.ieasybooks.rule: Host(`ieasybooks.com`)
-      traefik.http.routers.baheth.tls: true
+      traefik.http.routers.ieasybooks.tls: true
       traefik.http.routers.ieasybooks.tls.certresolver: letsencrypt
 
 traefik:
@@ -76,5 +76,3 @@ healthcheck:
   log_lines: 10_000
 
 asset_path: /rails/public/assets
-
-run_directory: .ieasybooks-kamal
