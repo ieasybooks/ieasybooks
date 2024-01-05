@@ -17,7 +17,7 @@ servers:
       network: "kamal_network"
     labels:
       traefik.http.routers.ieasybooks.entrypoints: websecure
-      traefik.http.routers.ieasybooks.rule: Host(`ieasybooks.com`)
+      traefik.http.routers.ieasybooks.rule: "Host(`ieasybooks.com`) || Host(`www.ieasybooks.com`)"
       traefik.http.routers.ieasybooks.tls: true
       traefik.http.routers.ieasybooks.tls.certresolver: letsencrypt
 
