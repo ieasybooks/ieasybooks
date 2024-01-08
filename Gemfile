@@ -121,7 +121,7 @@ group :development do
   gem 'rubocop-rake', '~> 0.6.0'
 
   # Code style checking for RSpec files. A plugin for the RuboCop code style enforcing & linting tool.
-  gem 'rubocop-rspec', '~> 2.25'
+  gem 'rubocop-rspec', '~> 2.26'
 
   # RubyAudit checks your current version of Ruby and RubyGems against known security vulnerabilities (CVEs),
   # alerting you if you are using an insecure version.
