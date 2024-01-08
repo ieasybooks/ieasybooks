@@ -89,7 +89,7 @@ group :development do
   gem 'brakeman', '~> 6.1.1'
 
   # Help to kill N+1 queries and unused eager loading.
-  gem 'bullet', '~> 7.1', '>= 7.1.4'
+  gem 'bullet', '~> 7.1'
 
   # bundler-audit provides patch-level verification for Bundled apps.
   gem 'bundler-audit', '~> 0.9.1'
