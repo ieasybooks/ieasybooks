@@ -95,7 +95,7 @@ group :development do
   gem 'bundler-audit', '~> 0.9.1'
 
   # Format ERB files with speed and precision.
-  gem 'erb-formatter', '~> 0.6.0'
+  gem 'erb-formatter', '~> 0.7.2'
 
   # i18n-tasks helps you find and manage missing and unused translations.
   # It analyses code statically for key usages, such as `I18n.t('some.key')`,
