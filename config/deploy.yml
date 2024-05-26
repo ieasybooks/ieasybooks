@@ -42,6 +42,7 @@ traefik:
 # Remember to run `kamal env push` after making changes!
 env:
   clear:
+    WEB_CONCURRENCY: 2
     DB_HOST: ieasybooks-postgres
   secret:
     - RAILS_MASTER_KEY
