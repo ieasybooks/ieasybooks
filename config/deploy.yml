@@ -76,3 +76,8 @@ healthcheck:
   log_lines: 10_000
 
 asset_path: /rails/public/assets
+
+builder:
+  remote:
+    arch: amd64
+    host: ssh://root@109.199.123.26
