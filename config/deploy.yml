@@ -12,7 +12,7 @@ registry:
 servers:
   web:
     hosts:
-      - 84.46.251.182
+      - 109.199.123.26
     options:
       network: "kamal_network"
     labels:
