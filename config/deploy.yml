@@ -61,11 +61,7 @@ accessories:
         POSTGRES_USER: ieasybooks
       secret:
         - POSTGRES_PASSWORD
-    cmd: [
-      postgres,
-      -c, "pg_stat_statements.track=all",
-      -c, "shared_preload_libraries=pg_stat_statements"
-    ]
+    cmd: postgres -c "pg_stat_statements.track=all" -c "shared_preload_libraries=pg_stat_statements"
     files:
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
