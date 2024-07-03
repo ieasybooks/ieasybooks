@@ -68,8 +68,6 @@ accessories:
       - data:/var/lib/postgresql/data
 
 healthcheck:
-  port: 3001
-  exposed_port: 4000
   log_lines: 10_000
 
 asset_path: /rails/public/assets
