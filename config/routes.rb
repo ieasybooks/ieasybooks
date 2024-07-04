@@ -2,7 +2,6 @@
 #
 #                                   Prefix Verb URI Pattern                                                                                       Controller#Action
 #                                               /assets                                                                                           Propshaft::Server
-#                               pages_home GET  /pages/home(.:format)                                                                             pages#home
 #                       rails_health_check GET  /up(.:format)                                                                                     rails/health#show
 #                                               /(*any)(.:format)                                                                                 redirect(301, subdomain: ) {:subdomain=>"www"}
 #                                     root GET  /                                                                                                 pages#home

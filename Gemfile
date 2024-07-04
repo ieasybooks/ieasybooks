@@ -1,18 +1,24 @@
 source 'https://rubygems.org'
 
-ruby '3.2.2'
+ruby '3.3.3'
+
+# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
+gem 'net-pop', github: 'ruby/net-pop'
 
 # Manually added dependencies:
 
+# Better HTML for Rails. Provides sane html helpers that make it easier to do the right thing.
+gem 'better_html', '~> 2.1', '>= 2.1.1'
+
 group :production do
   # This gem configures Rails for CloudFlare so that request.ip and request.remote_ip work correctly.
-  gem 'cloudflare-rails', '~> 5.0', '>= 5.0.1'
+  gem 'cloudflare-rails', '~> 6.0'
 end
 
 # Rails template dependencies:
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '~> 7.1.2'
+gem 'rails', '~> 7.1', '>= 7.1.3.4'
 
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem 'propshaft'
@@ -60,7 +66,7 @@ group :development, :test do
   # Manually added dependencies:
 
   # Autoload dotenv in Rails.
-  gem 'dotenv-rails', '~> 2.8', '>= 2.8.1'
+  gem 'dotenv', '~> 2.8', '>= 2.8.1'
 
   # Rails template dependencies:
 
@@ -72,7 +78,7 @@ group :development do
   # Manually added dependencies:
 
   # Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema.
-  gem 'annotate', '~> 3.2'
+  gem 'annotaterb', '~> 4.10'
 
   # Provides a better error page for Rails and other Rack apps.
   # Includes source code inspection, a live REPL and local/instance variable inspection for all stack frames.
@@ -83,45 +89,42 @@ group :development do
   # Allows access to bindings arbitrarily far up the call stack, not limited to just the immediate caller.
   # Recommended for use only in debugging situations.
   # Do not use this in production apps.
-  gem 'binding_of_caller', '~> 1.0'
+  gem 'binding_of_caller', '~> 1.0', '>= 1.0.1'
 
   # Brakeman detects security vulnerabilities in Ruby on Rails applications via static analysis.
-  gem 'brakeman', '~> 6.1.1'
+  gem 'brakeman', '~> 6.1', '>= 6.1.2'
 
   # Help to kill N+1 queries and unused eager loading.
-  gem 'bullet', '~> 7.1', '>= 7.1.4'
+  gem 'bullet', '~> 7.1', '>= 7.1.6'
 
   # bundler-audit provides patch-level verification for Bundled apps.
   gem 'bundler-audit', '~> 0.9.1'
 
   # Format ERB files with speed and precision.
-  gem 'erb-formatter', '~> 0.6.0'
+  gem 'erb-formatter', '~> 0.7.3'
 
   # i18n-tasks helps you find and manage missing and unused translations.
   # It analyses code statically for key usages, such as `I18n.t('some.key')`,
   # in order to report keys that are missing or unused, pre-fill missing keys
   # (optionally from Google Translate), and remove unused keys.
-  gem 'i18n-tasks', '~> 1.0', '>= 1.0.13'
+  gem 'i18n-tasks', '~> 1.0', '>= 1.0.14'
 
   # Deploy web apps in containers to servers running Docker with zero downtime.
-  gem 'kamal', '~> 1.3'
+  gem 'kamal', '~> 1.7', '>= 1.7.3'
 
   # RuboCop is a Ruby code style checking and code formatting tool.
   # It aims to enforce the community-driven Ruby Style Guide.
-  gem 'rubocop', '~> 1.59'
+  gem 'rubocop', '~> 1.64', '>= 1.64.1'
 
   # A collection of RuboCop cops to check for performance optimizations in Ruby code.
-  gem 'rubocop-performance', '~> 1.20.1'
+  gem 'rubocop-performance', '~> 1.21', '>= 1.21.1'
 
   # Automatic Rails code style checking tool.
   # A RuboCop extension focused on enforcing Rails best practices and coding conventions.
-  gem 'rubocop-rails', '~> 2.23.1'
+  gem 'rubocop-rails', '~> 2.25', '>= 2.25.1'
 
   # A RuboCop plugin for Rake.
   gem 'rubocop-rake', '~> 0.6.0'
-
-  # Code style checking for RSpec files. A plugin for the RuboCop code style enforcing & linting tool.
-  gem 'rubocop-rspec', '~> 2.25'
 
   # RubyAudit checks your current version of Ruby and RubyGems against known security vulnerabilities (CVEs),
   # alerting you if you are using an insecure version.
