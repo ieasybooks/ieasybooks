@@ -7,35 +7,17 @@
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/rocker-org/devcontainer-features/apt-packages:latest": {
-      "packages": "libpq-dev, libvips, curl"
-    },
-    "ghcr.io/devcontainers/features/git:latest": {},
-    "ghcr.io/jungaretti/features/vim:latest": {},
-    "ghcr.io/devcontainers/features/ruby:latest": {
-      "version": "3.2.2"
-    },
-    "ghcr.io/devcontainers/features/node:latest": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/common-utils:latest": {
-      "username": "vscode",
-      "uid": 1000,
-      "gid": 1000,
-      "installZsh": true,
-      "installOhMyZsh": true,
-      "configureZshAsDefaultShell": true,
-      "upgradePackages": true
-    }
+    "ghcr.io/jungaretti/features/vim": {},
+    "ghcr.io/rails/devcontainer/features/activestorage": {},
+    "ghcr.io/rails/devcontainer/features/postgres-client": {},
+    "ghcr.io/devcontainers/features/node": {},
+    "ghcr.io/devcontainers/features/docker-in-docker": {}
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or the host.
   "forwardPorts": [
     3000,
-    5432,
-    6379,
-    11211,
-    7700,
-    9610
+    5432
   ],
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": ".devcontainer/setup.sh",
@@ -59,14 +41,19 @@
         },
         "[ruby]": {
           "editor": {
-            "formatOnType": true,
+            "formatOnType": false,
             "tabSize": 2,
             "useTabStops": false,
             "defaultFormatter": "Shopify.ruby-lsp"
           }
         },
+        "[erb]": {
+          "editor": {
+            "formatOnSave": false
+          }
+        },
         "rubyLsp": {
-          "rubyVersionManager": "rvm",
+          "rubyVersionManager": "rbenv",
           "formatter": "rubocop"
         },
         "railsI18n": {
@@ -82,7 +69,36 @@
         },
         "erb-formatter": {
           "lineLength": 240,
-          "commandPath": "/usr/local/rvm/gems/default/bin/erb-format"
+          "commandPath": "/home/vscode/.rbenv/versions/3.3.3/bin/erb-formatter"
+        },
+        "erb": {
+          "erb-lint": {
+            "onSave": false
+          }
+        },
+        "emeraldwalk.runonsave": {
+          "commands": [
+            {
+              "match": "\\.erb$",
+              "cmd": "tempfile=$(mktemp);\
+                      cat ${file} > $tempfile;\
+                      rustywind --write $tempfile;\
+                      rustywind --write --custom-regex \"class=\\\"([^\\\"]+)\\\"\" $tempfile;\
+                      rustywind --write --custom-regex \"class:\\s+\\\"([^\\\"]+)\\\"\" $tempfile;\
+                      rustywind --write --custom-regex \"class:\\s+\\'([^\\']+)\\'\" $tempfile;\
+                      erb-formatter --write --print-width 240 $tempfile;\
+                      erblint --autocorrect $tempfile;\
+                      mv $tempfile ${file};"
+            },
+            {
+              "match": ".*locales.*\\.yml$",
+              "cmd": "i18n-tasks normalize"
+            },
+            {
+              "match": "\\.css$",
+              "cmd": "rustywind --write --custom-regex \"@apply ([_a-zA.-Z0-9-:\\[\\] ]+)( !important)?;\" ${file}"
+            }
+          ]
         },
         "livePreview": {
           "portNumber": 9620
@@ -121,6 +137,8 @@
         "bung87.vscode-gemfile",
         "eamodio.gitlens",
         "elia.erb-formatter",
+        "emeraldwalk.RunOnSave",
+        "manuelpuyol.erb-linter",
         "marcoroth.stimulus-lsp",
         "ms-vscode.live-server",
         "mtxr.sqltools",
