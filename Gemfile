@@ -7,13 +7,16 @@ gem 'net-pop', github: 'ruby/net-pop'
 
 # Manually added dependencies:
 
-# Better HTML for Rails. Provides sane html helpers that make it easier to do the right thing.
-gem 'better_html', '~> 2.1', '>= 2.1.1'
+# A multithreaded, Postgres-based ActiveJob backend for Ruby on Rails.
+gem 'good_job', '~> 3.29', '>= 3.29.5'
 
 group :production do
   # This gem configures Rails for CloudFlare so that request.ip and request.remote_ip work correctly.
   gem 'cloudflare-rails', '~> 6.0'
 end
+
+# Ruby gem holds my permanent dependencies and configs I'm using in my Rails projects.
+gem 'permadeps', '~> 1445.12', '>= 1445.12.4'
 
 # Rails template dependencies:
 
@@ -63,76 +66,11 @@ gem 'bootsnap', require: false
 # gem "image_processing", "~> 1.2"
 
 group :development, :test do
-  # Manually added dependencies:
-
-  # Autoload dotenv in Rails.
-  gem 'dotenv', '~> 2.8', '>= 2.8.1'
-
-  # Rails template dependencies:
-
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
 end
 
 group :development do
-  # Manually added dependencies:
-
-  # Annotates Rails/ActiveRecord Models, routes, fixtures, and others based on the database schema.
-  gem 'annotaterb', '~> 4.10'
-
-  # Provides a better error page for Rails and other Rack apps.
-  # Includes source code inspection, a live REPL and local/instance variable inspection for all stack frames.
-  gem 'better_errors', '~> 2.10', '>= 2.10.1'
-
-  # Provides the Binding#of_caller method.
-  # Using binding_of_caller we can grab bindings from higher up the call stack and evaluate code in that context.
-  # Allows access to bindings arbitrarily far up the call stack, not limited to just the immediate caller.
-  # Recommended for use only in debugging situations.
-  # Do not use this in production apps.
-  gem 'binding_of_caller', '~> 1.0', '>= 1.0.1'
-
-  # Brakeman detects security vulnerabilities in Ruby on Rails applications via static analysis.
-  gem 'brakeman', '~> 6.1', '>= 6.1.2'
-
-  # Help to kill N+1 queries and unused eager loading.
-  gem 'bullet', '~> 7.1', '>= 7.1.6'
-
-  # bundler-audit provides patch-level verification for Bundled apps.
-  gem 'bundler-audit', '~> 0.9.1'
-
-  # Format ERB files with speed and precision.
-  gem 'erb-formatter', '~> 0.7.3'
-
-  # i18n-tasks helps you find and manage missing and unused translations.
-  # It analyses code statically for key usages, such as `I18n.t('some.key')`,
-  # in order to report keys that are missing or unused, pre-fill missing keys
-  # (optionally from Google Translate), and remove unused keys.
-  gem 'i18n-tasks', '~> 1.0', '>= 1.0.14'
-
-  # Deploy web apps in containers to servers running Docker with zero downtime.
-  gem 'kamal', '~> 1.7', '>= 1.7.3'
-
-  # RuboCop is a Ruby code style checking and code formatting tool.
-  # It aims to enforce the community-driven Ruby Style Guide.
-  gem 'rubocop', '~> 1.64', '>= 1.64.1'
-
-  # A collection of RuboCop cops to check for performance optimizations in Ruby code.
-  gem 'rubocop-performance', '~> 1.21', '>= 1.21.1'
-
-  # Automatic Rails code style checking tool.
-  # A RuboCop extension focused on enforcing Rails best practices and coding conventions.
-  gem 'rubocop-rails', '~> 2.25', '>= 2.25.1'
-
-  # A RuboCop plugin for Rake.
-  gem 'rubocop-rake', '~> 0.6.0'
-
-  # RubyAudit checks your current version of Ruby and RubyGems against known security vulnerabilities (CVEs),
-  # alerting you if you are using an insecure version.
-  # It complements bundler-audit, providing complete coverage for your Ruby stack.
-  gem 'ruby_audit', '~> 2.2'
-
-  # Rails template dependencies:
-
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem 'web-console'
 

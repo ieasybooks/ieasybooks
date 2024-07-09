@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Scan for security vulnerabilities in Ruby on Rails application
+        run: bin/brakeman --no-pager
+      - name: Scan for security vulnerabilities in Ruby dependencies
+        run: |
+          bin/bundler-audit --update
+          bin/ruby-audit update
+          bin/ruby-audit
+
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
+
+  i18n-tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Run i18n-tasks check
+        run: bin/i18n-tasks health
+
+  erb-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Install rustywind
+        run: curl -LSfs https://avencera.github.io/rustywind/install.sh | sh -s -- --git avencera/rustywind
+      - name: Run rustywind
+        run: |
+          find app -name "*.html.erb" -exec rustywind --write {} +
+          find app -name "*.html.erb" -exec rustywind --write --custom-regex 'class="([^"]+)"' {} +
+          find app -name "*.html.erb" -exec rustywind --write --custom-regex "class:\\s+'([^']+)'" {} +
+      - name: Run erb-formatter
+        run: find app -name "*.html.erb" -exec bin/erb-formatter --write --print-width 240 {} \;
+        continue-on-error: true
+      - name: Run erb_lint
+        run: bin/erblint --autocorrect --lint-all --enable-all-linters
+        continue-on-error: true
+      - name: Check for changes
+        run: git diff --quiet app

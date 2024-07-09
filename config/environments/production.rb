@@ -1,6 +1,6 @@
 require 'active_support/core_ext/integer/time'
 
-Rails.application.configure do
+Rails.application.configure do # rubocop:disable Metrics/BlockLength
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -62,7 +62,7 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter = :resque
+  config.active_job.queue_adapter = :good_job
   # config.active_job.queue_name_prefix = "ieasybooks_production"
 
   config.action_mailer.perform_caching = false
@@ -88,4 +88,29 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  config.good_job.enable_cron = ENV.fetch('KAMAL_CONTAINER_NAME', '').include? 'worker'
+
+  config.good_job.cron = {
+    capture_query_stats: {
+      cron: '*/5 * * * *',
+      class: 'CaptureQueryStatsJob',
+      description: 'Capture PgHero query statistics every 5 minutes'
+    },
+    clean_query_stats: {
+      cron: '0 0 * * 5',
+      class: 'CleanQueryStatsJob',
+      description: 'Clean PgHero query statistics every Friday midnight'
+    },
+    capture_space_stats: {
+      cron: '*/5 * * * *',
+      class: 'CaptureSpaceStatsJob',
+      description: 'Capture PgHero space statistics every 5 minutes'
+    },
+    clean_space_stats: {
+      cron: '0 0 * * 5',
+      class: 'CleanSpaceStatsJob',
+      description: 'Clean PgHero space statistics every Friday midnight'
+    }
+  }
 end

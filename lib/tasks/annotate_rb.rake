@@ -7,6 +7,7 @@ if Rails.env.development? && ENV['ANNOTATERB_SKIP_ON_DB_TASKS'].nil?
   AnnotateRb::Core.load_rake_tasks
 
   namespace :annotate_rb do
+    desc 'Annotate routes after db:migrate'
     task annotate_routes: :environment do
       Rake::Task['db:migrate'].enhance do
         AnnotateRb::Runner.run(['routes'])

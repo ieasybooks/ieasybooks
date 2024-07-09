@@ -20,6 +20,12 @@ servers:
       traefik.http.routers.ieasybooks.rule: "Host(`ieasybooks.com`) || Host(`www.ieasybooks.com`)"
       traefik.http.routers.ieasybooks.tls: true
       traefik.http.routers.ieasybooks.tls.certresolver: letsencrypt
+  worker:
+    hosts:
+      - 54.247.196.28
+    options:
+      network: "kamal_network"
+    cmd: bundle exec good_job start
 
 traefik:
   options:
@@ -47,6 +53,12 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - POSTGRES_PASSWORD
+    - BLAZER_USERNAME
+    - BLAZER_PASSWORD
+    - PGHERO_USERNAME
+    - PGHERO_PASSWORD
+    - GOOD_JOB_USERNAME
+    - GOOD_JOB_PASSWORD
 
 accessories:
   postgres:
@@ -66,6 +78,15 @@ accessories:
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
       - data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2.5
+    roles:
+      - web
+    options:
+      network: "kamal_network"
+    directories:
+      - data:/data
 
 healthcheck:
   log_lines: 10_000
