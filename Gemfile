@@ -8,7 +8,7 @@ gem 'net-pop', github: 'ruby/net-pop'
 # Manually added dependencies:
 
 # A multithreaded, Postgres-based ActiveJob backend for Ruby on Rails.
-gem 'good_job', '~> 3.29', '>= 3.29.5'
+gem 'good_job', '~> 4.0', '>= 4.0.2'
 
 group :production do
   # This gem configures Rails for CloudFlare so that request.ip and request.remote_ip work correctly.

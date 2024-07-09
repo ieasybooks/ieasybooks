@@ -52,3 +52,4 @@ services:
 
 volumes:
   postgres-data:
+  redis-data:
