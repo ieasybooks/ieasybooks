@@ -68,9 +68,6 @@ group :development, :test do
 end
 
 group :development do
-  # RuboCop is a Ruby code style checking and code formatting tool. It aims to enforce the community-driven Ruby Style Guide.
-  gem 'rubocop' # Added here as RubyLSP requires the formatter to be a direct bundle dependency.
-
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem 'web-console'
 
