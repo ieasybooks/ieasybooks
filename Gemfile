@@ -1,9 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '3.3.3'
-
-# Needed until Ruby 3.3.4 is released https://github.com/ruby/ruby/pull/11006
-gem 'net-pop', github: 'ruby/net-pop'
+ruby '3.3.4'
 
 # Manually added dependencies:
 
@@ -16,7 +13,7 @@ group :production do
 end
 
 # Ruby gem holds my permanent dependencies and configs I'm using in my Rails projects.
-gem 'permadeps', '~> 1445.12', '>= 1445.12.4'
+gem 'permadeps', '~> 1446.1', '>= 1446.1.1'
 
 # Rails template dependencies:
 
@@ -30,7 +27,7 @@ gem 'propshaft'
 gem 'pg', '~> 1.1'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '>= 5.0'
+gem 'puma', '~> 6.4', '>= 6.4.2'
 
 # Bundle and transpile JavaScript [https://github.com/rails/jsbundling-rails]
 gem 'jsbundling-rails'
@@ -71,6 +68,9 @@ group :development, :test do
 end
 
 group :development do
+  # RuboCop is a Ruby code style checking and code formatting tool. It aims to enforce the community-driven Ruby Style Guide.
+  gem 'rubocop' # Added here as RubyLSP requires the formatter to be a direct bundle dependency.
+
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem 'web-console'
 
@@ -79,10 +79,4 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-end
-
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem 'capybara'
-  gem 'selenium-webdriver'
 end

@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/ruby/net-pop.git
-  revision: e8d0afe2773b9eb6a23c39e9e437f6fc0fc7c733
-  specs:
-    net-pop (0.1.2)
-      net-protocol
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -82,8 +75,6 @@ GEM
       minitest (>= 5.1)
       mutex_m
       tzinfo (~> 2.0)
-    addressable (2.8.7)
-      public_suffix (>= 2.0.2, < 7.0)
     ahoy_matey (5.1.0)
       activesupport (>= 6.1)
       device_detector (>= 1)
@@ -123,15 +114,6 @@ GEM
     bundler-audit (0.9.1)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
-    capybara (3.40.0)
-      addressable
-      matrix
-      mini_mime (>= 0.1.3)
-      nokogiri (~> 1.11)
-      rack (>= 1.6.0)
-      rack-test (>= 0.6.3)
-      regexp_parser (>= 1.5, < 3.0)
-      xpath (~> 3.2)
     chartkick (5.0.7)
     cloudflare-rails (6.0.0)
       actionpack (>= 7.1.0, < 8.1.0)
@@ -224,7 +206,6 @@ GEM
       railties (>= 6.0.0)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
-    logger (1.6.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -234,7 +215,6 @@ GEM
       net-pop
       net-smtp
     marcel (1.0.4)
-    matrix (0.4.2)
     memory_profiler (1.0.2)
     mini_mime (1.1.5)
     minitest (5.24.1)
@@ -242,6 +222,8 @@ GEM
     mutex_m (0.2.0)
     net-imap (0.4.14)
       date
+      net-protocol
+    net-pop (0.1.2)
       net-protocol
     net-protocol (0.2.2)
       timeout
@@ -264,12 +246,12 @@ GEM
       activesupport (>= 6.1)
       safely_block (>= 0.4)
     parallel (1.25.1)
-    parser (3.3.3.0)
+    parser (3.3.4.0)
       ast (~> 2.4.1)
       racc
-    permadeps (1445.12.4)
+    permadeps (1446.1.1)
       ahoy_matey (~> 5.1)
-      annotaterb (~> 4.10)
+      annotaterb (~> 4.10, >= 4.10.1)
       better_errors (~> 2.10, >= 2.10.1)
       better_html (~> 2.1, >= 2.1.1)
       binding_of_caller (~> 1.0, >= 1.0.1)
@@ -282,14 +264,14 @@ GEM
       erb_lint (~> 0.5.0)
       flamegraph (~> 0.9.5)
       freezolite (~> 0.5.0)
-      geocoder (~> 1.8, >= 1.8.2)
+      geocoder (~> 1.8, >= 1.8.3)
       i18n-tasks (~> 1.0, >= 1.0.14)
       memory_profiler (~> 1.0, >= 1.0.2)
       notable (~> 0.5.2)
       pg_query (~> 5.1)
       pghero (~> 3.5)
       rack-mini-profiler (~> 3.3, >= 3.3.1)
-      rubocop (~> 1.64, >= 1.64.1)
+      rubocop (~> 1.65)
       rubocop-minitest (~> 0.35.0)
       rubocop-performance (~> 1.21, >= 1.21.1)
       rubocop-rails (~> 2.25, >= 2.25.1)
@@ -311,7 +293,6 @@ GEM
       railties (>= 7.0.0)
     psych (5.1.2)
       stringio
-    public_suffix (6.0.0)
     puma (6.4.2)
       nio4r (~> 2.0)
     raabro (1.4.0)
@@ -373,13 +354,13 @@ GEM
     rexml (3.3.1)
       strscan
     rouge (4.3.0)
-    rubocop (1.64.1)
+    rubocop (1.65.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.8, < 3.0)
+      regexp_parser (>= 2.4, < 3.0)
       rexml (>= 3.2.5, < 4.0)
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
@@ -407,14 +388,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby_audit (2.3.1)
       bundler-audit (~> 0.9.0)
-    rubyzip (2.3.2)
     safely_block (0.4.0)
-    selenium-webdriver (4.22.0)
-      base64 (~> 0.2)
-      logger (~> 1.4)
-      rexml (~> 3.2, >= 3.2.5)
-      rubyzip (>= 1.2.2, < 3.0)
-      websocket (~> 1.0)
     smart_properties (1.17.0)
     stackprof (0.2.26)
     stimulus-rails (1.3.3)
@@ -441,12 +415,9 @@ GEM
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
     webrick (1.8.1)
-    websocket (1.2.11)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    xpath (3.2.0)
-      nokogiri (~> 1.8)
     zeitwerk (2.6.16)
 
 PLATFORMS
@@ -459,28 +430,26 @@ PLATFORMS
 
 DEPENDENCIES
   bootsnap
-  capybara
   cloudflare-rails (~> 6.0)
   cssbundling-rails
   debug
   good_job (~> 4.0, >= 4.0.2)
   jbuilder
   jsbundling-rails
-  net-pop!
-  permadeps (~> 1445.12, >= 1445.12.4)
+  permadeps (~> 1446.1, >= 1446.1.1)
   pg (~> 1.1)
   propshaft
-  puma (>= 5.0)
+  puma (~> 6.4, >= 6.4.2)
   rails (~> 7.1, >= 7.1.3.4)
   redis (>= 4.0.1)
-  selenium-webdriver
+  rubocop
   stimulus-rails
   turbo-rails
   tzinfo-data
   web-console
 
 RUBY VERSION
-   ruby 3.3.3p89
+   ruby 3.3.4p94
 
 BUNDLED WITH
-   2.5.3
+   2.5.15

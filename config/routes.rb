@@ -118,7 +118,7 @@
 #        cron_entries GET    /cron_entries(.:format)                   good_job/cron_entries#index
 #          cron_entry GET    /cron_entries/:cron_key(.:format)         good_job/cron_entries#show
 #           processes GET    /processes(.:format)                      good_job/processes#index
-#         performance GET    /performance(.:format)                    good_job/performances#show
+#   performance_index GET    /performance(.:format)                    good_job/performance#index
 #     frontend_module GET    /frontend/modules/:name(.:format)         good_job/frontends#module {:format=>"js"}
 #     frontend_static GET    /frontend/static/:name(.:format)          good_job/frontends#static {:format=>["css", "js"]}
 
