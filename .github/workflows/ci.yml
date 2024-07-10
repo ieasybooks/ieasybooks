@@ -68,7 +68,7 @@ jobs:
           find app -name "*.html.erb" -exec rustywind --write --custom-regex 'class="([^"]+)"' {} +
           find app -name "*.html.erb" -exec rustywind --write --custom-regex "class:\\s+'([^']+)'" {} +
       - name: Run erb-formatter
-        run: find app -name "*.html.erb" -exec bin/erb-formatter --write --print-width 240 {} \;
+        run: find app -name "*.html.erb" -exec bin/erb-formatter --write --print-width 240 {} +
         continue-on-error: true
       - name: Run erb_lint
         run: bin/erblint --autocorrect --lint-all --enable-all-linters
