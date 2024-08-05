@@ -13,7 +13,7 @@ group :production do
 end
 
 # Ruby gem holds my permanent dependencies and configs I'm using in my Rails projects.
-gem 'permadeps', '~> 1446.1', '>= 1446.1.1'
+gem 'permadeps', '~> 1446.1'
 
 # Rails template dependencies:
 
