@@ -5,7 +5,7 @@ ruby '3.3.4'
 # Manually added dependencies:
 
 # A multithreaded, Postgres-based ActiveJob backend for Ruby on Rails.
-gem 'good_job', '~> 4.0', '>= 4.0.2'
+gem 'good_job', '~> 4.3'
 
 group :production do
   # This gem configures Rails for CloudFlare so that request.ip and request.remote_ip work correctly.
