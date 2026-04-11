@@ -1,3 +1,0 @@
-inherit_gem:
-  permadeps:
-    - rubocop.yml
