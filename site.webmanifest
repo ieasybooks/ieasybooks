@@ -1,0 +1,14 @@
+{
+  "name": "ieasybooks",
+  "short_name": "ieasybooks",
+  "description": "Open-source Islamic software projects",
+  "start_url": "/ar/",
+  "display": "minimal-ui",
+  "background_color": "#0d1f38",
+  "theme_color": "#15355A",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
