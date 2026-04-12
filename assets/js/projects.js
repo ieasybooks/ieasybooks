@@ -81,7 +81,7 @@ export const projects = [
     name_ar: "باحث",
     name_en: "Baheth",
     tagline_ar: "منصة تدمج تقنيات الذكاء الاصطناعي في العملية التعليمية الشرعية. توفِّر المنصة تفريغ دروس ومحاضرات العلماء والمشايخ مع إمكانية البحث فيها والبحث بالمعنى في الأحاديث النبوية والمكتبة الشاملة، لتكون بديلًا غير مُشتت يُيسّر الوصول إلى العلم الشرعي.",
-    tagline_en: "A platform integrating AI into Islamic education. It provides transcriptions of scholars' lectures with semantic search across transcripts, Prophetic hadiths, and al-Maktaba al-Shamila — a focused, distraction-free way to access Islamic knowledge.",
+    tagline_en: "A platform integrating AI into Islamic education. It provides transcriptions of scholars' lectures with the ability to search within them, plus semantic search across Prophetic hadiths and al-Maktaba al-Shamila — a focused, distraction-free way to access Islamic knowledge.",
     logo: "/assets/logos/baheth.png",
     gradient: "burgundy",
     links: [
