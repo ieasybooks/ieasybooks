@@ -180,7 +180,7 @@ ul, ol {
   width: 88px;
   height: 88px;
   border-radius: var(--r-md);
-  background: var(--c-text);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
