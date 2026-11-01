@@ -151,6 +151,17 @@ function descriptionBlock(p) {
     : h("p", { class: "desc" }, arText(copy));
 }
 
+// The cream ink's faint tones on a chapter's colour, each at least as strong as it must be to read at
+// 4.5 : 1 there.
+function inks(hex) {
+  const lum = (rgb) => rgb.map(c => c / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4)
+    .reduce((s, c, i) => s + c * [.2126, .7152, .0722][i], 0);
+  const bg = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)), on = [247, 240, 229], lb = lum(bg);
+  const reads = (a) => { const l = lum(on.map((c, i) => c * a + bg[i] * (1 - a))); return (Math.max(l, lb) + .05) / (Math.min(l, lb) + .05) >= 4.5; };
+  const tone = (a) => { while (a < 1 && !reads(a)) a = Math.min(1, a + .01); return +a.toFixed(2); };
+  return `--a2:${tone(.8)};--a3:${tone(.66)}`;
+}
+
 function buildProject(p, i) {
   const next = projects[i + 1];
   const name = p[`name_${LOCALE}`];
@@ -173,7 +184,7 @@ function buildProject(p, i) {
     next ? catchword(next.slug, next[`name_${LOCALE}`]) : catchword("colophon", STR.end),
     shade());
 
-  const el = h("section", { class: "spread spread--chapter", id: p.slug, "aria-labelledby": `t-${p.slug}`, style: `--ch:${p.color}` }, text, plate);
+  const el = h("section", { class: "spread spread--chapter", id: p.slug, "aria-labelledby": `t-${p.slug}`, style: `--ch:${p.color};${inks(p.color)}` }, text, plate);
   return { el, text, plate, project: p, motif: { def: m, inst }, beats: m.beats, slug: p.slug, name, gloss };
 }
 
@@ -252,6 +263,7 @@ const LIFT = .055;                 // how far a released corner arcs on its way,
 const ZONE = 120;                  // a grabbable page corner
 const BEAT = .26, HOLD = .16;      // scroll per plate beat, and the still moment before the turn, × viewport height
 const BAR = 64, GAP = 24, TAIL = 56; // the top bar, the air beneath it, and the space the ribbon hangs into, in px
+const TYPE_MAX = 1.4;                // the most the book's type grows against its scale
 let PH = 900;
 const LAST = spreads.length - 1;
 const PAGES = spreads.flatMap(sp => [sp.l, sp.r]).filter(Boolean);
@@ -295,18 +307,17 @@ function layout() {
   PH = S.H - 2 * TOP;
   S.ox = (root.clientWidth - 1320 * S.k) / 2;
   S.oy = BAR + GAP + (room - S.H * S.k) / 2;
+  // Below three quarters of its size, the book's type stops shrinking with it.
+  S.lift = lay === "sheet" ? Math.min(TYPE_MAX, Math.max(1, .75 / S.k)) : 1;
   root.style.setProperty("--k", S.k);
+  root.style.setProperty("--lift", S.lift);
+  root.style.setProperty("--dpr", devicePixelRatio || 1);
   root.style.setProperty("--ox", `${S.ox}px`);
   root.style.setProperty("--oy", `${S.oy}px`);
   root.style.setProperty("--H", `${S.H}px`);
   for (const sp of spreads) {
     const title = $(".title", sp.text);
-    if (title) {
-      title.classList.remove("title--long"); title.style.whiteSpace = "nowrap";
-      const over = title.scrollWidth > title.clientWidth + 1;
-      title.style.whiteSpace = "";
-      if (over) title.classList.add("title--long");
-    }
+    if (title) fitTitle(title);
   }
   if (mode === "pocket") pkLayout();
   fitPages();
@@ -317,17 +328,31 @@ function layout() {
   render();
 }
 
-// A chapter's page sets tighter when it runs long; a paperback page hands its tutorials to the plate
-// if it must.
+// A chapter's name that will not fit on one line sets smaller.
+function fitTitle(title) {
+  title.classList.remove("title--long"); title.style.whiteSpace = "nowrap";
+  const over = title.scrollWidth > title.clientWidth + 1;
+  title.style.whiteSpace = "";
+  if (over) title.classList.add("title--long");
+}
+
+// A chapter's page sets tighter when it runs long; a lifted page then gives back some of its lift,
+// and a paperback page hands its tutorials to the plate if it must.
 function fitPages() {
   for (const sp of spreads) {
     if (!sp.project) continue;
     const col = $(".jadwal", sp.text);
     sp.text.classList.remove("pg--tight");
+    sp.text.style.removeProperty("--lift");
     if (sp.gloss && sp.gloss.parentElement !== col) col.append(sp.gloss);
     if (S.lay === "fluid") continue;
     const over = () => col.scrollHeight > col.clientHeight + 1;
     if (over()) sp.text.classList.add("pg--tight");
+    for (let l = S.lift; over() && l > 1;) {
+      l = Math.max(1, l - .02);
+      sp.text.style.setProperty("--lift", l);
+      fitTitle($(".title", sp.text));
+    }
     if (over() && sp.gloss && S.lay === "pocket") $(".jadwal", sp.plate).append(sp.gloss);
   }
 }
@@ -339,9 +364,9 @@ function mountMotifs(force) {
     const plate = sp.box.parentElement;
     const css = getComputedStyle(plate);
     const availW = plate.clientWidth - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
-    // A paperback page also fits its plate to its height, beside any tutorials moved onto it.
+    // A plate also fits its page's height, beside any tutorials moved onto a paperback's page.
     const gloss = sp.gloss?.parentElement === plate.parentElement ? sp.gloss.offsetHeight + 16 : 0;
-    const availH = S.lay === "pocket" ? plate.parentElement.clientHeight - gloss : Infinity;
+    const availH = S.lay === "fluid" ? Infinity : plate.parentElement.clientHeight - gloss;
     const base = sp.motif.def.size?.[narrow ? "narrow" : "wide"] || (narrow ? NARROW : PLATE);
     const size = narrow ? { w: Math.min(520, availW), h: base.h } : { ...base };
     // a wider phone page sets the questions in fewer lines

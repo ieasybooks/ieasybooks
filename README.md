@@ -31,6 +31,10 @@ one leaf. Each of these ends by moving the scroll position to the page left open
 hero and the contents provide chapter navigation. The ledger precedes the colophon; after the last
 leaf the back board closes over the book.
 
+The book is scaled to fit the window's height, which on most laptops draws it well below its set
+size. Below three quarters of that size its type stops shrinking with it: titles and margins give
+way instead, and a chapter page that would overflow sets its own type a little smaller.
+
 Phones and tablets held upright read the same book as a paperback, one page at a time: the hero
 sits above it, then the book pins under the top bar and its front board swings open on the spine.
 Each page then peels from its tail fore-edge corner and turns over the spine, uncovering the next:
@@ -54,6 +58,7 @@ ledger and colophon remain readable.
 - `assets/js/book.js`: builds the spreads and navigation, lays out the desktop book, the paperback or the plain scroll, and drives each from the scroll position; updates Tahweel's latest-release download links, preserving fallback URLs on failure.
 - `assets/js/motifs.js`: the plates and their product actions: cutting, transcript highlighting, search, OCR, named flat-stacked books and the Q&A reading wash. Baheth's results and Aljam3's books link to their pages on those sites.
 - `assets/css/site.css`: tokens, layout, typography and physical lighting.
+- `assets/logos/ieasybooks-mark.svg`: the one-colour mark, converted from the initiative's own vector logo. It masks the top bar, the cover and the title page in their colours.
 - `assets/og/ar.png`, `en.png`: each locale's link preview (1200 × 630), the closed book beside the page's promise, set in the site's own fonts.
 - `assets/img/pattern.svg`, `pattern-plum.svg`: one seamless 136-unit repeat of an eight-fold star pattern (Hankin's method on the octagon-and-square tiling), drawn in code. The black one is a mask for the boards' band; the plum one lines the endpapers.
 
@@ -67,7 +72,7 @@ generated raster imagery.
 Append an entry to `projects` in `assets/js/projects.js`:
 
 1. Supply `slug`, `date`, `meta_ar` / `meta_en`, `name_ar` / `name_en`, `tagline_ar` / `tagline_en`, and `logo`. Arabic numbers use Arabic-Indic figures, with nonbreaking spaces between numbers and nouns.
-2. `color` is the chapter colour, taken from the project's logo. It fills the text page under cream type, so keep it dark enough for 4.5 : 1.
+2. `color` is the chapter colour, taken from the project's logo. It fills the text page under cream type, so keep it dark enough for 4.5 : 1. The page's fainter labels are strengthened as far as that colour needs to keep 4.5 : 1 too.
 3. `links` contains `{ type, url }` entries. The website or main download is primary; the rest are secondary links. Optional `repositories` supplies a short source-code list. Link labels live in `LINKS` in `book.js`.
 4. `tutorials` contains `{ id, title_ar, title_en }` entries, where `id` is a YouTube video ID. An empty array shows none.
 5. `motif` selects a plate from the `motifs` registry. Without it, `shot` supplies a screenshot plate, or `logo` a small mark.
