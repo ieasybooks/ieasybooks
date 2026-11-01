@@ -24,6 +24,7 @@
   --origin:100% 0; --k:1; --H:900px; --ox:0px; --oy:0px;
   --logo:url(/assets/logos/ieasybooks-mark.webp);
   --pattern:url(/assets/img/pattern.svg) 50% 0/136px 136px repeat;
+  --out:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18.5 18.5 5.5 5.5M5.5 16.5v-11h11'/%3E%3C/svg%3E");
   --play:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M15 12 10 9v6z'/%3E%3C/svg%3E");
   --search:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
 }
@@ -95,8 +96,8 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 /* -------------------------------------------------------------------- the pages */
 .boards,.gutter,.turnshadow,.stack,.ribbon { display:none; }
 .stack { position:absolute; background:repeating-linear-gradient(90deg,#ddd3c3 0 1px,#f7f2ea 1px 2px); }
-/* A ribbon marks the place: gold on the boards, the chapter's colour inside. */
-.ribbon { position:absolute; z-index:5; pointer-events:none; background:var(--rib,var(--gold)); clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - var(--notch)),0 100%); transition:background-color .4s var(--ease); }
+/* A gold ribbon marks the place, part of the binding like the boards. */
+.ribbon { position:absolute; z-index:5; pointer-events:none; background:var(--gold); clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - var(--notch)),0 100%); }
 .pg { position:relative; background-color:var(--paper); }
 .jadwal { position:relative; }
 .block { display:flex; flex-direction:column; min-width:0; }
@@ -153,9 +154,11 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .pg__shade { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:var(--shade,0); }
 
 /* A rule drawn as an arrow, instead of borrowing a system-font glyph. */
-.links__arrow,.m-ocr__direction { position:relative; display:inline-block; flex:none; width:20px; height:16px; vertical-align:middle; margin-inline:4px; }
-.links__arrow::before,.m-ocr__direction::before { content:""; position:absolute; left:1px; right:1px; top:8px; border-top:1.5px solid currentColor; }
-.links__arrow::after,.m-ocr__direction::after { content:""; position:absolute; left:1px; top:5px; width:7px; height:7px; border:solid currentColor; border-width:0 0 1.5px 1.5px; transform:rotate(45deg); }
+.m-ocr__direction { position:relative; display:inline-block; flex:none; width:20px; height:16px; vertical-align:middle; margin-inline:4px; }
+.m-ocr__direction::before { content:""; position:absolute; left:1px; right:1px; top:8px; border-top:1.5px solid currentColor; }
+.m-ocr__direction::after { content:""; position:absolute; left:1px; top:5px; width:7px; height:7px; border:solid currentColor; border-width:0 0 1.5px 1.5px; transform:rotate(45deg); }
+/* a link that leaves the page points up and on, along the line */
+.links__arrow { flex:none; width:16px; height:16px; background:currentColor; -webkit-mask:var(--out) center/contain no-repeat; mask:var(--out) center/contain no-repeat; }
 /* mirrored with `scale`, which a plate's own transform can't overwrite */
 :root:lang(en) .links__arrow,:root:lang(en) .m-ocr__direction { scale:-1 1; }
 
@@ -167,12 +170,12 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .index__now .is-current { display:block; }
 
 /* ===================================================================== desktop
-   One 1440-unit sheet, scaled by --k. Two 720-unit boards hinge on the spine; each page is
-   700 × (H − 32), set 20 in from the board's fore-edge and 16 from its head and tail. */
-.lay-sheet .sheet { position:absolute; top:0; left:0; width:1440px; height:var(--H); transform:translate(var(--ox),var(--oy)) scale(var(--k)); transform-origin:0 0; }
+   One 1320-unit sheet, scaled by --k. Two 660-unit boards hinge on the spine; each page is
+   640 × (H − 32), set 20 in from the board's fore-edge and 16 from its head and tail. */
+.lay-sheet .sheet { position:absolute; top:0; left:0; width:1320px; height:var(--H); transform:translate(var(--ox),var(--oy)) scale(var(--k)); transform-origin:0 0; }
 .lay-sheet .cover-runway { display:contents; }
-.lay-sheet .hero { position:absolute; top:16px; bottom:16px; left:816px; right:0; z-index:0; display:flex; flex-direction:column; justify-content:center; }
-:root:lang(en).lay-sheet .hero { left:0; right:816px; }
+.lay-sheet .hero { position:absolute; top:16px; bottom:16px; left:756px; right:0; z-index:0; display:flex; flex-direction:column; justify-content:center; }
+:root:lang(en).lay-sheet .hero { left:0; right:756px; }
 .lay-sheet .hero__title { font-size:54px; line-height:1.5; }
 :root:lang(en).lay-sheet .hero__title { font-size:54px; line-height:1.3; }
 .lay-sheet .hero__sub { margin-top:24px; font-size:22px; }
@@ -183,24 +186,24 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .lay-sheet .boards { display:block; position:absolute; inset:0; }
 .lay-sheet .spreads { position:absolute; inset:0; }
 .lay-sheet .spread { position:absolute; inset:0; }
-.lay-sheet .pg { position:absolute; top:16px; width:700px; height:calc(var(--H) - 32px); margin:0; padding:0; }
+.lay-sheet .pg { position:absolute; top:16px; width:640px; height:calc(var(--H) - 32px); margin:0; padding:0; }
 .lay-sheet .pg--l { left:20px; background-image:linear-gradient(to left,rgb(43 25 14 / .1),transparent 8%); }
-.lay-sheet .pg--r { left:720px; background-image:linear-gradient(to right,rgb(43 25 14 / .1),transparent 8%); }
+.lay-sheet .pg--r { left:660px; background-image:linear-gradient(to right,rgb(43 25 14 / .1),transparent 8%); }
 .lay-sheet .stack { display:block; top:16px; bottom:16px; width:calc(var(--n,4)*1px); }
 .lay-sheet .stack--l { left:calc(20px - var(--n,4)*1px); }
 .lay-sheet .stack--r { right:calc(20px - var(--n,4)*1px); }
-.lay-sheet .gutter { display:block; position:absolute; left:693px; top:16px; bottom:16px; width:54px; z-index:5; pointer-events:none; background:linear-gradient(90deg,transparent,rgb(35 21 12 / .08) 50%,transparent); }
-.lay-sheet .turnshadow { display:block; position:absolute; left:0; top:0; width:1440px; height:var(--H); z-index:6; opacity:0; pointer-events:none; filter:blur(9px); }
+.lay-sheet .gutter { display:block; position:absolute; left:633px; top:16px; bottom:16px; width:54px; z-index:5; pointer-events:none; background:linear-gradient(90deg,transparent,rgb(35 21 12 / .08) 50%,transparent); }
+.lay-sheet .turnshadow { display:block; position:absolute; left:0; top:0; width:1320px; height:var(--H); z-index:6; opacity:0; pointer-events:none; filter:blur(9px); }
 .turnshadow>span { position:absolute; inset:0; background:#2a1a10; }
-.lay-sheet .cover,.lay-sheet .backcover { position:absolute; top:0; left:0; width:720px; height:var(--H); margin:0; transform-origin:100% 50%; }
-:root:lang(en).lay-sheet .cover,:root:lang(en).lay-sheet .backcover { left:720px; transform-origin:0 50%; }
+.lay-sheet .cover,.lay-sheet .backcover { position:absolute; top:0; left:0; width:660px; height:var(--H); margin:0; transform-origin:100% 50%; }
+:root:lang(en).lay-sheet .cover,:root:lang(en).lay-sheet .backcover { left:660px; transform-origin:0 50%; }
 .lay-sheet .cover__in,.lay-sheet .backcover__in { position:absolute; inset:0; }
 .lay-sheet .cover__in { padding:96px 104px 0 80px; }
 :root:lang(en).lay-sheet .cover__in { padding:96px 80px 0 104px; }
 .lay-sheet .cover__in::before { inset-inline-start:28px; }
 .lay-sheet .backcover__in::before { inset-inline:auto 28px; }
 .lay-sheet .cover__mark { height:56px; }
-.lay-sheet .cover__title { margin-top:56px; font-size:144px; line-height:1.25; }
+.lay-sheet .cover__title { margin-top:56px; font-size:128px; line-height:1.25; }
 :root:lang(en).lay-sheet .cover__title { font-size:80px; }
 .lay-sheet .backcover__in { padding:96px 80px calc(var(--H)*.22 + 40px) 104px; }
 :root:lang(en).lay-sheet .backcover__in { padding:96px 104px calc(var(--H)*.22 + 40px) 80px; }
@@ -217,7 +220,7 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .lay-sheet .pg--endpaper.pg--l { background:linear-gradient(to left,rgb(0 0 0 / .22),transparent 8%),url(/assets/img/pattern-plum.svg) 50% 0/136px 136px repeat,var(--plum-3); }
 .lay-sheet .pg--endpaper.pg--r { background:linear-gradient(to right,rgb(0 0 0 / .22),transparent 8%),url(/assets/img/pattern-plum.svg) 50% 0/136px 136px repeat,var(--plum-3); }
 /* the text page: a flowing column, its tutorials at the foot */
-.lay-sheet .pg--text .jadwal { position:absolute; inset:72px 72px 96px; display:flex; flex-direction:column; }
+.lay-sheet .pg--text .jadwal { position:absolute; inset:72px 64px 96px; display:flex; flex-direction:column; }
 .lay-sheet .kicker { font-size:17px; }
 .lay-sheet .title { margin-top:16px; font-size:112px; line-height:1.3; }
 .lay-sheet .title--long { font-size:60px; line-height:1.45; }
@@ -228,16 +231,21 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 :root:lang(en).lay-sheet .desc { line-height:1.7; }
 .lay-sheet .links { gap:16px 28px; margin-top:40px; }
 .lay-sheet .links__primary { height:56px; gap:12px; padding-inline:24px; border-radius:12px; font-size:19px; }
+.lay-sheet .links__arrow { width:18px; height:18px; }
 .lay-sheet .links__more { gap:4px 24px; font-size:18px; }
 .lay-sheet .links__src { font-size:16px; }
 .lay-sheet .glosses__head { font-size:16px; }
 .lay-sheet .glosses a { min-height:56px; gap:14px; font-size:19px; }
 .lay-sheet .glosses__play { width:22px; height:22px; }
+/* a chapter that runs long sets a little closer */
+.lay-sheet .pg--tight .desc { margin-top:24px; line-height:1.7; }
+:root:lang(en).lay-sheet .pg--tight .desc { line-height:1.6; }
+.lay-sheet .pg--tight .links { margin-top:32px; }
 .lay-sheet .folio { position:absolute; left:0; right:0; bottom:36px; font-size:15px; }
-.lay-sheet .catch { position:absolute; bottom:36px; inset-inline-end:72px; font-size:16px; }
-.lay-sheet .pg--plate .jadwal { position:absolute; inset:56px 64px 88px; display:flex; align-items:center; }
+.lay-sheet .catch { position:absolute; bottom:36px; inset-inline-end:64px; font-size:16px; }
+.lay-sheet .pg--plate .jadwal { position:absolute; inset:56px 48px 88px; display:flex; align-items:center; }
 .lay-sheet .plate { width:100%; }
-.lay-sheet .pg--opening .opening__body,.lay-sheet .pg--contents .opening__body { position:absolute; inset:72px 72px 96px; }
+.lay-sheet .pg--opening .opening__body,.lay-sheet .pg--contents .opening__body { position:absolute; inset:72px 64px 96px; }
 .lay-sheet .pg--contents .opening__body { display:flex; flex-direction:column; justify-content:center; }
 .lay-sheet .opening__identity { gap:20px; }
 .lay-sheet .opening__basmala { font-size:32px; }
@@ -247,7 +255,7 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .lay-sheet .opening__contents { margin-bottom:40px; font-size:60px; }
 .lay-sheet .opening__list a { height:68px; gap:16px; font-size:22px; }
 .lay-sheet .opening__dot { width:12px; height:12px; }
-.lay-sheet .pg--stats .jadwal,.lay-sheet .pg--colophon .jadwal { position:absolute; inset:72px 72px 96px; display:flex; flex-direction:column; justify-content:center; }
+.lay-sheet .pg--stats .jadwal,.lay-sheet .pg--colophon .jadwal { position:absolute; inset:72px 64px 96px; display:flex; flex-direction:column; justify-content:center; }
 .lay-sheet .ledger__lead { font-size:20px; }
 .lay-sheet .ledger td { padding:32px 0; }
 .lay-sheet .ledger b { font-size:68px; }
@@ -269,8 +277,8 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .spread--endpaper { display:none; }
 .mode-desk .spread--endpaper { display:block; }
 /* the ribbon lies in the gutter and hangs below the tail */
-.mode-desk .ribbon { display:block; top:6px; left:684px; width:9px; height:calc(var(--H) + 38px); --notch:7px; }
-:root:lang(en).mode-desk .ribbon { left:747px; }
+.mode-desk .ribbon { display:block; top:6px; left:624px; width:9px; height:calc(var(--H) + 38px); --notch:7px; }
+:root:lang(en).mode-desk .ribbon { left:687px; }
 /* The board faces: one shows at a time, chosen by its angle, so no engine has to sort them. */
 .mode-desk .backcover__in { transform:rotateY(180deg); }
 .mode-desk .cover__inside,.mode-pocket .cover>.cover__inside { display:block; }
@@ -490,7 +498,7 @@ html.lay-pocket { height:100%; overflow:hidden; }
 .mode-static.lay-sheet .contact__label { font-size:18px; }
 .mode-static.lay-sheet .contact__handle,.mode-static.lay-sheet .backcover__copy { font-size:14px; }
 .mode-static.lay-sheet .spreads { position:relative; inset:auto; }
-.mode-static.lay-sheet .spread { position:relative; width:1440px; height:var(--H); margin-left:var(--ox); margin-bottom:calc(var(--H)*(var(--k) - 1) + 32px); transform:scale(var(--k)); transform-origin:0 0; }
+.mode-static.lay-sheet .spread { position:relative; width:1320px; height:var(--H); margin-left:var(--ox); margin-bottom:calc(var(--H)*(var(--k) - 1) + 32px); transform:scale(var(--k)); transform-origin:0 0; }
 :root[dir=rtl].mode-static.lay-sheet .spread { margin-left:0; margin-right:var(--ox); transform-origin:100% 0; }
 .mode-static.lay-sheet .boards,.mode-static.lay-sheet .gutter,.mode-static.lay-sheet .turnshadow { display:none; }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }

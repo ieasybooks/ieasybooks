@@ -14,11 +14,12 @@ and open `/ar/` or `/en/`.
 On desktop the page is one physical book, bound like a publisher's series: a plum board and warm
 paper, with every chapter in the colour of its own project's logo. The closed book lies with its spine
 on the centre line, beside the hero: what the initiative builds, and the six projects with their dates.
-Scrolling swings the front board open on the spine in 3D, over the hero, into a centred spread.
+Scrolling swings the front board open on the spine in 3D, over the hero, into a centred spread; a
+reader who lingers on the closed book without touching it sees the board lift once and settle.
 Endpapers in the board's geometric pattern line both boards and face the first and last leaves. Each
 chapter is one spread: a text page printed in its colour, with the project's description, links and
-tutorials, and a live product plate on the paper page facing it. A ribbon lies in the gutter, gold on
-the boards and the chapter's colour inside. English mirrors Arabic.
+tutorials, and a live product plate on the paper page facing it. A gold ribbon lies in the gutter.
+English mirrors Arabic.
 
 Paper leaves fold rather than rotate: the crease is the perpendicular bisector of the corner's rest
 point and its current position, the front is clipped to the near side of it, and the reverse is the

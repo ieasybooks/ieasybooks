@@ -76,7 +76,7 @@ $("#hero-list").append(...projects.map((p) => h("li", { style: `--ch:${p.color}`
     h("span", { class: "hero__dot", "aria-hidden": "true" }),
     h("span", { class: "hero__name" }, p[`name_${LOCALE}`]),
     h("time", { datetime: p.date }, p[`meta_${LOCALE}`].split(" — ")[0])))));
-// A ribbon marks the place: gold on the boards, the chapter's colour inside it.
+// A gold ribbon marks the place.
 const ribbon = h("span", { class: "ribbon", "aria-hidden": "true" });
 sheet.append(ribbon);
 // Each board has two faces: the tooled outside, and an inside lined with the endpaper.
@@ -244,14 +244,14 @@ const chooseMode = () => REDUCED.matches ? "static" : root.clientWidth >= 1024 ?
   : innerHeight >= 500 && innerHeight >= root.clientWidth ? "pocket" : "phone";
 
 /* ------------------------------------------------------------------ the object */
-// One 1440-unit sheet. Two 720-unit boards hinge on the spine; each page is 700 × PH,
+// One 1320-unit sheet. Two 660-unit boards hinge on the spine; each page is 640 × PH,
 // set 20 in from the board's fore-edge and 16 from its head and tail.
-const SPINE = 720, PW = 700, TOP = 16, HALF = 360, DEG = Math.PI / 180;
+const SPINE = 660, PW = 640, TOP = 16, HALF = 330, DEG = Math.PI / 180;
 const FWD = RTL ? -1 : 1;          // the side that holds the unread leaves
 const LIFT = .055;                 // how far a released corner arcs on its way, × page height
 const ZONE = 120;                  // a grabbable page corner
 const BEAT = .26, HOLD = .16;      // scroll per plate beat, and the still moment before the turn, × viewport height
-const BAR = 64, TAIL = 56;         // the top bar, and the space the ribbon hangs into, in px
+const BAR = 64, GAP = 24, TAIL = 56; // the top bar, the air beneath it, and the space the ribbon hangs into, in px
 let PH = 900;
 const LAST = spreads.length - 1;
 const PAGES = spreads.flatMap(sp => [sp.l, sp.r]).filter(Boolean);
@@ -287,14 +287,14 @@ function layout() {
     for (const sp of spreads) sp.lastP = undefined;
     current = -1;
   }
-  // A board keeps a book's proportions: its page is between 700 × 900 and 700 × 1060. The book sits
-  // under the top bar, with room beneath it for the ribbon's tail.
-  const kw = root.clientWidth * .94 / 1440, room = innerHeight - BAR - TAIL;
-  S.H = Math.min(1092, Math.max(932, room / kw));
+  // A board keeps a book's proportions: its page is between 640 × 900 and 640 × 980. The book sits
+  // clear of the top bar, with room beneath it for the ribbon's tail.
+  const kw = root.clientWidth * .94 / 1320, room = innerHeight - BAR - GAP - TAIL;
+  S.H = Math.min(1012, Math.max(932, room / kw));
   S.k = Math.min(kw, room / S.H);
   PH = S.H - 2 * TOP;
-  S.ox = (root.clientWidth - 1440 * S.k) / 2;
-  S.oy = BAR + (room - S.H * S.k) / 2;
+  S.ox = (root.clientWidth - 1320 * S.k) / 2;
+  S.oy = BAR + GAP + (room - S.H * S.k) / 2;
   root.style.setProperty("--k", S.k);
   root.style.setProperty("--ox", `${S.ox}px`);
   root.style.setProperty("--oy", `${S.oy}px`);
@@ -309,12 +309,27 @@ function layout() {
     }
   }
   if (mode === "pocket") pkLayout();
-  pkFit();
+  fitPages();
   mountMotifs(changed);
   timeline();
   S.measured = true;
   if (mode === "phone" || mode === "static") finalState();
   render();
+}
+
+// A chapter's page sets tighter when it runs long; a paperback page hands its tutorials to the plate
+// if it must.
+function fitPages() {
+  for (const sp of spreads) {
+    if (!sp.project) continue;
+    const col = $(".jadwal", sp.text);
+    sp.text.classList.remove("pg--tight");
+    if (sp.gloss && sp.gloss.parentElement !== col) col.append(sp.gloss);
+    if (S.lay === "fluid") continue;
+    const over = () => col.scrollHeight > col.clientHeight + 1;
+    if (over()) sp.text.classList.add("pg--tight");
+    if (over() && sp.gloss && S.lay === "pocket") $(".jadwal", sp.plate).append(sp.gloss);
+  }
 }
 
 function mountMotifs(force) {
@@ -491,8 +506,8 @@ function draw(st) {
   // The closed book lies with its spine on the centre line, beside the hero, and opens into a centred
   // spread; closing at the back, it slides to the centre.
   S.shift = bp > 0 ? FWD * HALF * (1 - Math.cos(b * DEG)) / 2 : 0;
-  // The hero gives way as the front board swings over it.
-  const hk = bp > 0 ? 0 : clamp01(1 - cp / .3);
+  // The hero gives way as the front board swings over it, not while it only lifts.
+  const hk = bp > 0 ? 0 : clamp01(1 - (cp - .1) / .25);
   setO(hero, hk); setV(hero, hk > 0); hero.inert = hk < .5;
   // The ribbon stays with the leaves; closing at the back, the board takes it in.
   setO(ribbon, 1 - seg(bp, .3, .5));
@@ -610,8 +625,6 @@ function render() {
   setO(nav, 0); setV(nav, false); nav.inert = true;  // Desktop navigation is the top bar, contents and catchwords.
   const here = units[locate(y).cur].sp;
   renderIndex(here);
-  const rib = here.project?.color || "";
-  if (ribbon._c !== rib) { ribbon._c = rib; rib ? ribbon.style.setProperty("--rib", rib) : ribbon.style.removeProperty("--rib"); }
 }
 
 function renderIndex(sp) {
@@ -761,6 +774,31 @@ function hover(e) {
   if (hands.mode !== "peek") { hands.mode = "peek"; hands.raf = requestAnimationFrame(peekTick); }
 }
 
+// Once, if the reader lingers over the closed book without touching it, its board lifts a little and
+// settles: it opens. The wait counts only while the page is in view.
+const NUDGE = 1.25, lift = { kind: "cover", from: 0, corner: true, top: false };
+let nudge = 0;    // its timer, or −1 once it has run or been called off
+function noNudge() {
+  clearTimeout(nudge); nudge = -1;
+  // a lift under way hands the book straight back to the reader
+  if (hands.peekG === lift) { cancelAnimationFrame(hands.raf); hands.mode = ""; hands.peek = hands.peekTo = 0; hands.peekG = null; render(); }
+}
+for (const type of ["scroll", "wheel", "keydown", "pointerdown", "touchstart"]) addEventListener(type, noNudge, { once: true, passive: true });
+function armNudge() {
+  if (nudge < 0) return;
+  clearTimeout(nudge);
+  if (document.hidden) return;
+  nudge = setTimeout(() => {
+    nudge = -1;
+    if (S.mode !== "desk" || hands.mode || scrollPos() > 0) return;
+    hands.peekG = lift; hands.peekTo = NUDGE;
+    hands.mode = "peek"; hands.raf = requestAnimationFrame(peekTick);
+    setTimeout(() => { if (hands.peekG === lift) hands.peekTo = 0; }, 900);
+  }, 3000);
+}
+document.addEventListener("visibilitychange", armNudge);
+armNudge();
+
 function suppressClick() {
   const kill = (e) => { e.stopPropagation(); e.preventDefault(); };
   addEventListener("click", kill, { capture: true, once: true });
@@ -860,20 +898,6 @@ function pkLayout() {
   root.style.setProperty("--pkh", `${PK.H}px`);
   for (const pg of POCKET) pg.el._back = undefined;
   pkPile._i = undefined;
-}
-
-// A chapter's page sets tighter when it runs long, and hands its tutorials to the plate if it must.
-function pkFit() {
-  for (const sp of spreads) {
-    if (!sp.project) continue;
-    const col = $(".jadwal", sp.text);
-    sp.text.classList.remove("pg--tight");
-    if (sp.gloss && sp.gloss.parentElement !== col) col.append(sp.gloss);
-    if (S.mode !== "pocket") continue;
-    const over = () => col.scrollHeight > col.clientHeight + 1;
-    if (over()) sp.text.classList.add("pg--tight");
-    if (over() && sp.gloss) $(".jadwal", sp.plate).append(sp.gloss);
-  }
 }
 
 function pkTimeline() {
@@ -1007,8 +1031,6 @@ function pkRender() {
   setV(nav, head); setO(nav, head ? 1 : 0); nav.inert = !head;
   if (head) renderIndex(sp);
   root.classList.toggle("paper-started", scrollPos() > 8);
-  const rib = here < NP ? sp.project?.color || "" : "";
-  if (ribbon._c !== rib) { ribbon._c = rib; rib ? ribbon.style.setProperty("--rib", rib) : ribbon.style.removeProperty("--rib"); }
 }
 
 // Hand the book back to the scroll position of the page left showing (−1: the closed board).
