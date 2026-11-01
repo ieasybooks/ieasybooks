@@ -195,7 +195,7 @@ function openingSpread() {
     h("div", { class: "opening__body opening__identity" },
       h("p", { class: "opening__basmala", lang: "ar", dir: "rtl" }, "بسم الله الرحمن الرحيم"),
       h("span", { class: "mark", "aria-hidden": "true" }),
-      h("p", { class: "opening__wordmark" }, LOCALE === "ar" ? "الكتب الميسّرة" : "iEasyBooks"), h("h2", { class: "opening__mission" }, mission)), folio(1), shade());
+      h("p", { class: "opening__wordmark" }, LOCALE === "ar" ? "الكتب المُيسّرة" : "iEasyBooks"), h("h2", { class: "opening__mission" }, mission)), folio(1), shade());
   const rows = projects.map((p, i) => ({ slug: p.slug, title: p[`name_${LOCALE}`], n: i * 2 + 3, color: p.color }));
   rows.push({ slug: "colophon", title: STR.end, n: 16 });
   const plate = h("div", { class: "pg pg--contents pg--plate" },

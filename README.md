@@ -69,7 +69,8 @@ generated raster imagery.
 
 ## Adding a project
 
-Append an entry to `projects` in `assets/js/projects.js`:
+Add an entry to `projects` in `assets/js/projects.js`. The book runs from the newest project to the
+oldest, so a new one usually goes first:
 
 1. Supply `slug`, `date`, `meta_ar` / `meta_en`, `name_ar` / `name_en`, `tagline_ar` / `tagline_en`, and `logo`. Arabic numbers use Arabic-Indic figures, with nonbreaking spaces between numbers and nouns.
 2. `color` is the chapter colour, taken from the project's logo. It fills the text page under cream type, so keep it dark enough for 4.5 : 1. The page's fainter labels are strengthened as far as that colour needs to keep 4.5 : 1 too.
