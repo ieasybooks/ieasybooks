@@ -29,16 +29,17 @@ const LINKS = {
   macos:          { ar: "ماك", en: "macOS" },
   chrome:         { ar: "كروم", en: "Chrome" },
   firefox:        { ar: "فايرفوكس", en: "Firefox" },
+  browser:        { ar: "المتصفح", en: "Browser" },
+  mcp:            { ar: "المساعدات الذكية (MCP)", en: "AI assistants (MCP)" },
+  cli:            { ar: "أداة سطر الأوامر", en: "Command-line tool" },
+  tashkeel:       { ar: "التشكيل من سطر الأوامر", en: "Diacritization on the command line" },
   github:         { ar: "الشيفرة المصدرية", en: "Source code" },
-  github_python:  { ar: "بايثون", en: "Python" },
-  github_ruby:    { ar: "روبي", en: "Ruby" },
-  github_tauri:   { ar: "سطح المكتب", en: "Desktop app" },
-  github_website: { ar: "الموقع", en: "Website" },
 };
-// The primary link: the website, else the main download.
-const PRIMARY_ORDER = ["website", "windows", "android", "ios", "macos"];
+// The primary link: the website or the tool in the browser, else the main download.
+const PRIMARY_ORDER = ["website", "browser", "windows", "android", "ios", "macos"];
 const PRIMARY_LABEL = {
   website: { ar: "زيارة الموقع", en: "Visit the website" },
+  browser: { ar: "الاستخدام من المتصفح", en: "Use it in the browser" },
   windows: { ar: "تنزيل لويندوز", en: "Download for Windows" },
   android: { ar: "تنزيل لأندرويد", en: "Get it on Android" },
   ios:     { ar: "تنزيل لآيفون", en: "Get it on iPhone" },
@@ -120,9 +121,10 @@ function linksBlock(p) {
   return out;
 }
 
+// Four tutorials or more pair up on the desk's page.
 function glossesBlock(p) {
   if (!p.tutorials?.length) return null;
-  return h("aside", { class: "glosses", "aria-labelledby": `notes-${p.slug}` },
+  return h("aside", { class: p.tutorials.length > 3 ? "glosses glosses--pairs" : "glosses", "aria-labelledby": `notes-${p.slug}` },
     h("p", { class: "glosses__head", id: `notes-${p.slug}` }, STR.notes),
     h("ol", { class: "glosses__list" }, p.tutorials.map((t) => h("li", {},
       external(`https://youtu.be/${t.id}`,
@@ -210,6 +212,9 @@ function openingSpread() {
 function colophonSpread() {
   const text = $(".pg--text", colophonEl);
   const plate = $(".pg--plate", colophonEl);
+  // its folios follow the chapters'
+  $(".folio", text).textContent = fmt(2 * projects.length + 3, LOCALE);
+  $(".folio", plate).textContent = fmt(2 * projects.length + 4, LOCALE);
   return { el: colophonEl, text, plate, motif: null, beats: 0, isColophon: true, slug: "colophon", name: STR.end };
 }
 
@@ -355,6 +360,14 @@ function fitPages() {
     }
     if (over() && sp.gloss && S.lay === "pocket") $(".jadwal", sp.plate).append(sp.gloss);
   }
+  // The hero beside the closed book gives back its lift the same way.
+  hero.style.removeProperty("--lift");
+  if (S.lay !== "sheet") return;
+  const spills = () => hero.lastElementChild.getBoundingClientRect().bottom - hero.firstElementChild.getBoundingClientRect().top > hero.getBoundingClientRect().height;
+  for (let l = S.lift; spills() && l > 1;) {
+    l = Math.max(1, l - .02);
+    hero.style.setProperty("--lift", l);
+  }
 }
 
 function mountMotifs(force) {
@@ -384,6 +397,10 @@ function mountMotifs(force) {
     if (sp.project.motif === "qa") {
       const flow = $(".m-qa__flow", sp.box);
       sp.box.style.setProperty("--mh", `${Math.ceil(flow.offsetHeight + 60)}px`);
+    }
+    if (sp.project.motif === "diacritize") {
+      const flow = $(".m-dz__flow", sp.box);
+      sp.box.style.setProperty("--mh", `${Math.ceil(flow.offsetHeight)}px`);
     }
     if (sp.project.motif === "search") {
       const columns = $(".m-se__cols", sp.box);
@@ -1205,13 +1222,13 @@ document.fonts?.ready.then(() => {
   if (target) jumpTo(target);
 });
 
-/* ---------------------------------------------- Tahweel: latest release links */
+/* ------------------------------------- Aljam3 desktop: latest release links */
 // The Windows and macOS links point at releases/latest; swap in the direct downloads.
-async function tahweelRelease() {
-  const page = document.getElementById("tahweel");
+async function desktopRelease() {
+  const page = document.getElementById("aljam3");
   if (!page) return;
   try {
-    const res = await fetch("https://api.github.com/repos/ieasybooks/tahweel-tauri/releases/latest");
+    const res = await fetch("https://api.github.com/repos/ieasybooks/aljam3-desktop/releases/latest");
     if (!res.ok) return;
     const release = await res.json();
     for (const [type, pattern] of [["windows", /\.exe$/i], ["macos", /\.dmg$/i]]) {
@@ -1223,4 +1240,4 @@ async function tahweelRelease() {
     // the fallback links already point to releases/latest
   }
 }
-(window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(tahweelRelease);
+(window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(desktopRelease);

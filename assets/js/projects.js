@@ -15,7 +15,7 @@
 //                 text page and its ribbon, dots its contents entry and lights the plate. It carries
 //                 cream text, so keep it dark enough for 4.5 : 1.
 //   motif       - OPTIONAL key into the diagram registry in motifs.js
-//                 ("qa" | "timeline" | "transcribe" | "search" | "ocr" | "library").
+//                 ("qa" | "timeline" | "transcribe" | "search" | "ocr" | "library" | "diacritize").
 //                 Without a motif the page gets a simple plate: `shot` if set, otherwise `logo`.
 //   shot        - OPTIONAL path to a product screenshot (webp, 16:10) for that simple plate
 //   logo        - path to the project's logo (a small raster; never shown above 96px)
@@ -25,6 +25,27 @@
 //                 Listed as video links at the foot of the chapter's page; an empty array shows none.
 
 export const projects = [
+  {
+    slug: "arabitools",
+    color: "#1f5c49",
+    date: "2026-10",
+    meta_ar: "أكتوبر ٢٠٢٦",
+    meta_en: "October 2026",
+    name_ar: "أدوات العربية",
+    name_en: "arabi.tools",
+    tagline_ar: "أدوات مجانية لتفريغ الصوت واستخراج النص من ملفات PDF والصور وتشكيل النص العربي، دون حساب أو تثبيت.",
+    tagline_en: "Free tools for audio transcription, extracting text from PDFs and images, and Arabic diacritization, with no account and nothing to install.",
+    motif: "diacritize",
+    logo: "/assets/logos/arabitools.png",
+    links: [
+      { type: "website",  url: "https://arabi.tools" },
+      { type: "github",   url: "https://github.com/ieasybooks/arabi.tools" },
+      { type: "tashkeel", url: "https://github.com/ieasybooks/tashkeel-rs" },
+    ],
+    tutorials: [
+      { id: "aZXJrgYlHII", title_ar: "تشكيل النص العربي", title_en: "Arabic diacritization" },
+    ],
+  },
   {
     slug: "aljam3",
     color: "#a8341c",
@@ -42,11 +63,16 @@ export const projects = [
       { type: "android", url: "https://play.google.com/store/apps/details?id=com.ieasybooks.aljam3" },
       { type: "ios",     url: "https://apps.apple.com/uz/app/aljam3-library/id6749810366" },
       { type: "huawei",  url: "https://appgallery.huawei.com/app/C115078047" },
+      { type: "windows", url: "https://github.com/ieasybooks/aljam3-desktop/releases/latest" },
+      { type: "macos",   url: "https://github.com/ieasybooks/aljam3-desktop/releases/latest" },
+      { type: "mcp",     url: "https://aljam3.com/mcp" },
       { type: "github",  url: "https://github.com/ieasybooks/aljam3-web-app" },
     ],
     tutorials: [
       { id: "JvFmqlbbg84", title_ar: "المنصة", title_en: "The platform" },
       { id: "XGJ-BanIw9w", title_ar: "واجهة البرمجة", title_en: "The API" },
+      { id: "Ud9NsHxZ59A", title_ar: "تطبيق سطح المكتب", title_en: "The desktop app" },
+      { id: "_mZ6fmzpGnQ", title_ar: "المساعدات الذكية", title_en: "AI assistants" },
     ],
   },
   {
@@ -57,24 +83,16 @@ export const projects = [
     meta_en: "October 2024",
     name_ar: "تحويل",
     name_en: "Tahweel",
-    tagline_ar: "أداة لتحويل ملفات PDF إلى DOCX و TXT باستخدام تقنيات التعرّف الضوئي على الحروف من Google، مع إمكانية تحويل ملف واحد أو مجلد كامل والحصول على مخرجات بنفس عدد صفحات الملف الأصلي.",
-    tagline_en: "A tool to convert PDF files to DOCX and TXT using Google’s OCR, with support for single files or entire folders and output that preserves the original page count.",
+    tagline_ar: "أداة لتحويل ملفات PDF والصور إلى DOCX و TXT و JSON باستخدام تقنيات التعرّف الضوئي على الحروف من Google، مع إمكانية تحويل ملف واحد أو مجلد كامل والحصول على مخرجات بنفس عدد صفحات الملف الأصلي.",
+    tagline_en: "A tool to convert PDF files and images to DOCX, TXT and JSON using Google’s OCR, with support for single files or entire folders and output that preserves the original page count.",
     motif: "ocr",
     logo: "/assets/logos/tahweel.png",
     links: [
-      { type: "website", url: "https://tahweel.ieasybooks.com" },
-      { type: "windows", url: "https://github.com/ieasybooks/tahweel-tauri/releases/latest" },
-      { type: "macos",   url: "https://github.com/ieasybooks/tahweel-tauri/releases/latest" },
-    ],
-    repositories: [
-      { type: "github_python",  url: "https://github.com/ieasybooks/tahweel" },
-      { type: "github_ruby",    url: "https://github.com/ieasybooks/tahweel.rb" },
-      { type: "github_tauri",   url: "https://github.com/ieasybooks/tahweel-tauri" },
-      { type: "github_website", url: "https://github.com/ieasybooks/tahweel-website" },
+      { type: "browser", url: "https://arabi.tools/ocr" },
+      { type: "cli",     url: "https://github.com/ieasybooks/tahweel-rs" },
     ],
     tutorials: [
-      { id: "MsLRFT50pNo", title_ar: "الاستخدام من المتصفح", title_en: "Using it in the browser" },
-      { id: "6v11HdJsQtk", title_ar: "تطبيق سطح المكتب", title_en: "The desktop app" },
+      { id: "fxC84uwTY54", title_ar: "الاستخدام من المتصفح", title_en: "Using it in the browser" },
     ],
   },
   {
@@ -132,16 +150,16 @@ export const projects = [
     meta_en: "March 2023",
     name_ar: "تفريغ",
     name_en: "Tafrigh",
-    tagline_ar: "أداة لتفريغ المواد المرئية والمسموعة إلى نصوص باستخدام تقنيات الذكاء الاصطناعي من OpenAI و wit.ai، مع دعم التحميل المباشر من YouTube وتوفير صيَغ مخرجات متعددة.",
-    tagline_en: "A tool to transcribe audio and video to text using AI from OpenAI and wit.ai, with direct YouTube download support and multiple output formats.",
+    tagline_ar: "أداة لتفريغ المواد المرئية والمسموعة إلى نصوص باستخدام تقنيات الذكاء الاصطناعي من Wit.ai، أو بنماذج عربية تعمل على جهازك، مع دعم التحميل المباشر من YouTube وتوفير صيَغ مخرجات متعددة.",
+    tagline_en: "A tool to transcribe audio and video to text using AI from Wit.ai, or Arabic models that run on your own computer, with direct YouTube download support and multiple output formats.",
     motif: "transcribe",
     logo: "/assets/logos/tafrigh.png",
     links: [
-      { type: "website", url: "https://tafrigh.ieasybooks.com" },
-      { type: "github",  url: "https://github.com/ieasybooks/tafrigh" },
+      { type: "browser", url: "https://arabi.tools/transcribe" },
+      { type: "cli",     url: "https://github.com/ieasybooks/tafrigh-rs" },
     ],
     tutorials: [
-      { id: "qFsUwp5iomU", title_ar: "الاستخدام من المتصفح", title_en: "Using it in the browser" },
+      { id: "kQUc04Xtu7k", title_ar: "الاستخدام من المتصفح", title_en: "Using it in the browser" },
     ],
   },
   {

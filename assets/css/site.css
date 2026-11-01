@@ -239,6 +239,8 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .lay-sheet .glosses__head { font-size:calc(16px * var(--lift)); }
 .lay-sheet .glosses a { min-height:calc(40px + 16px * var(--lift)); gap:14px; font-size:calc(19px * var(--lift)); }
 .lay-sheet .glosses__play { width:calc(22px * var(--lift)); height:calc(22px * var(--lift)); }
+/* four tutorials or more pair up on the desk's page */
+.lay-sheet .glosses--pairs .glosses__list { display:grid; grid-template-columns:1fr 1fr; column-gap:24px; }
 /* a chapter that runs long sets a little closer */
 .lay-sheet .pg--tight .desc { margin-top:calc(24px / var(--lift)); line-height:1.7; }
 :root:lang(en).lay-sheet .pg--tight .desc { line-height:calc(1.3 + .3 / var(--lift)); }
@@ -641,6 +643,43 @@ html.lay-pocket { height:100%; overflow:hidden; }
 .m-lib__book:hover .m-lib__tail,.m-lib__book:focus-visible .m-lib__tail { background:color-mix(in srgb,var(--ch) 22%,transparent); }
 .is-narrow .m-lib__shelves { inset:12px 0; gap:20px 12px; }
 .is-narrow .m-lib__tail { font-size:16px; }
+
+/* 7. Diacritize (arabi.tools): the pasted line takes its marks word by word from the chosen model */
+.m-dz__flow { inset-inline:0; top:0; display:flex; flex-direction:column; gap:calc(18px / var(--lift)); }
+.m-dz__flow > * { position:relative; }
+.m-dz__src { padding:14px 20px; border:1px solid #d9d0c1; border-radius:10px; background:var(--card); }
+.m-dz__in { color:var(--t2); font:400 calc(25px * var(--lift))/1.8 var(--f-book); }
+.m-dz__run { display:flex; align-items:center; gap:8px; padding-inline-start:10px; }
+.m-dz__down { position:relative; width:22px; height:34px; margin-inline-end:8px; }
+.m-dz__down::before { content:""; position:absolute; left:10px; top:2px; height:28px; border-left:1.5px solid var(--t3); }
+.m-dz__down::after { content:""; position:absolute; top:20px; left:6px; width:9px; height:9px; border:solid var(--t3); border-width:0 1.5px 1.5px 0; transform:rotate(45deg); }
+.m-dz__model { padding:3px 12px; border-radius:8px; background:color-mix(in srgb,var(--ch) calc(var(--on,0)*100%),var(--raised)); color:color-mix(in srgb,#fff calc(var(--on,0)*100%),var(--t2)); font:500 calc(16px * min(var(--lift),1.2))/1.5 var(--f-ui); }
+.m-dz__card { padding:16px 22px 14px; border:1.5px solid var(--ch); border-radius:10px; background:var(--card); box-shadow:0 8px 24px rgb(31 27 22 / .06); }
+/* set for display, so it needs no lift */
+.m-dz__out { color:var(--t1); font:400 50px/2.1 var(--f-book); text-wrap:balance; }
+.m-dz__w { position:relative; display:inline-block; }
+/* the light lies behind the letters, not the whole tall line */
+.m-dz__w::before { content:""; position:absolute; inset:20% -4px 16%; border-radius:4px; background:color-mix(in srgb,var(--ch) calc(var(--wash,0)*16%),transparent); }
+.m-dz__d { position:relative; }
+.m-dz__b { position:absolute; inset-inline-start:0; top:0; color:var(--t3); white-space:nowrap; }
+.m-dz__cite { color:var(--t3); font:400 calc(15px * var(--lift))/1.5 var(--f-ui); text-align:end; }
+.m-dz__fmts { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:calc(8px / var(--lift)); padding-top:calc(16px / var(--lift)); border-top:1px solid var(--line); }
+.m-dz__fl { color:var(--t2); font-size:calc(16px * var(--lift)); white-space:nowrap; }
+.m-dz__fbox { display:flex; flex-wrap:wrap; gap:8px; }
+.m-dz__f { padding:2px 8px; border-radius:6px; background:var(--raised); color:var(--t2); font:400 calc(15px * var(--lift))/1.5 var(--f-ui); }
+.is-narrow .m-dz__flow { gap:10px; }
+.is-narrow .m-dz__src { padding:10px 14px; }
+.is-narrow .m-dz__in { font-size:17px; }
+.is-narrow .m-dz__down { height:28px; }
+.is-narrow .m-dz__down::before { height:22px; }
+.is-narrow .m-dz__down::after { top:14px; }
+.is-narrow .m-dz__model { padding:2px 10px; font-size:13px; }
+.is-narrow .m-dz__card { padding:12px 14px 10px; }
+.is-narrow .m-dz__out { font-size:28px; line-height:2.05; }
+.is-narrow .m-dz__cite { font-size:12px; }
+.is-narrow .m-dz__fmts { gap:8px 10px; padding-top:12px; }
+.is-narrow .m-dz__fl { font-size:14px; }
+.is-narrow .m-dz__f { font-size:13px; padding-inline:6px; }
 
 /* fallback plate: a screenshot, or the logo on a small tile */
 .m-fb { display:grid; place-items:center; }

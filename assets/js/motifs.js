@@ -703,7 +703,69 @@ const library = {
 };
 
 /* ===================================================== the registry */
-export const motifs = { qa, timeline, transcribe, search, ocr, library };
+/* ===================================================== 7. DIACRITIZE ==
+   arabi.tools: a pasted line gains its diacritics word by word as the chosen model reads it; then
+   the output formats. The hadith and its marks are the site's own: the text and the شكِّلها result
+   shown in its diacritization film (ieasybooks/launches, arabi-tools-tashkeel). */
+const DZ_TEXT = "من سلك طريقا يلتمس فيه علما سهل الله له به طريقا إلى الجنة";
+const DZ_MARKED = "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إلَى الْجَنَّةِ";
+const DZ_MODELS = ["شكِّلها", "CATT"];
+const DZ = {
+  ar: { cite: "رواه مسلم", fl: "صيغ المخرجات", out: ["نص مشكول", "TXT", "DOCX"] },
+  en: { cite: "Narrated by Muslim", fl: "Output formats", out: ["Diacritized text", "TXT", "DOCX"] },
+};
+
+const diacritize = {
+  beats: 3,
+  size: { wide: PLATE, narrow: NARROW },
+  create(ctx) {
+    const el = h("div", { class: "m m-dz", "aria-hidden": "true" });
+    const st = {};
+    return {
+      el,
+      mount() {
+        el.textContent = "";
+        const L = DZ[ctx.locale];
+        const bare = words(DZ_TEXT);
+        // Each word holds both forms: the marked one sets the line, and the bare one lies over it
+        // until the model reaches it.
+        const ws = words(DZ_MARKED).map((m, i) => {
+          const d = h("span", { class: "m-dz__d" }, m), b = h("span", { class: "m-dz__b" }, bare[i]);
+          return { w: h("span", { class: "m-dz__w" }, d, b), d, b };
+        });
+        const models = DZ_MODELS.map((m) => h("span", { class: "m-dz__model" }, m));
+        const items = L.out.map((f) => h("span", { class: "m-dz__f" }, f));
+        const fmts = h("div", { class: "m-dz__fmts" }, h("span", { class: "m-dz__fl" }, L.fl), h("span", { class: "m-dz__fbox" }, items));
+        el.append(h("div", { class: "m-dz__flow" },
+          h("div", { class: "m-dz__src" }, h("p", { class: "m-dz__in", dir: "rtl", lang: "ar" }, DZ_TEXT)),
+          h("div", { class: "m-dz__run" }, h("span", { class: "m-dz__down" }), models),
+          h("div", { class: "m-dz__card" },
+            h("p", { class: "m-dz__out", dir: "rtl", lang: "ar" }, ws.flatMap((x, i) => (i ? [" ", x.w] : [x.w]))),
+            h("p", { class: "m-dz__cite" }, L.cite)),
+          fmts));
+        Object.assign(st, { ws, model: models[0], fmts });
+      },
+      update(p) {
+        // beat 1: the first model is chosen
+        setVar(st.model, "--on", easeOut(seg(p, 0.04, 0.18)).toFixed(3));
+        // beats 2–3: the marks arrive word by word, each word lit while it takes them
+        const n = st.ws.length, span = 0.62;
+        st.ws.forEach((x, i) => {
+          const a = 0.2 + (span * i) / n, k = seg(p, a, a + (span / n) * 1.5);
+          setO(x.d, k);
+          setO(x.b, 1 - k);
+          setVar(x.w, "--wash", Math.sin(Math.PI * k).toFixed(3));
+        });
+        // then the formats it writes
+        const k = easeOut(seg(p, 0.86, 0.97));
+        ink(st.fmts, k);
+        setVis(st.fmts, k > 0);
+      },
+    };
+  },
+};
+
+export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize };
 
 /* A project without a motif: its screenshot as a plate, otherwise its logo on a small tile. */
 export function fallbackPlate(project, locale) {
