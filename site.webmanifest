@@ -1,11 +1,11 @@
 {
-  "name": "ieasybooks",
-  "short_name": "ieasybooks",
-  "description": "Open-source Islamic software projects",
+  "name": "iEasyBooks",
+  "short_name": "iEasyBooks",
+  "description": "We build Islamic apps that make access to Islamic sciences easy",
   "start_url": "/ar/",
-  "display": "minimal-ui",
-  "background_color": "#0d1f38",
-  "theme_color": "#15355A",
+  "display": "standalone",
+  "background_color": "#f4f0e9",
+  "theme_color": "#f4f0e9",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
