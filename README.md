@@ -53,6 +53,7 @@ ledger and colophon remain readable.
 - `assets/js/book.js`: builds the spreads and navigation, lays out the desktop book, the paperback or the plain scroll, and drives each from the scroll position; updates Tahweel's latest-release download links, preserving fallback URLs on failure.
 - `assets/js/motifs.js`: the plates and their product actions: cutting, transcript highlighting, search, OCR, named flat-stacked books and the Q&A reading wash. Baheth's results and Aljam3's books link to their pages on those sites.
 - `assets/css/site.css`: tokens, layout, typography and physical lighting.
+- `assets/og/ar.png`, `en.png`: each locale's link preview (1200 × 630), the closed book beside the page's promise, set in the site's own fonts.
 - `assets/img/pattern.svg`, `pattern-plum.svg`: one seamless 136-unit repeat of an eight-fold star pattern (Hankin's method on the octagon-and-square tiling), drawn in code. The black one is a mask for the boards' band; the plum one lines the endpapers.
 
 Plum, gold and warm paper are the binding; each chapter's colour comes from its logo and is the only
