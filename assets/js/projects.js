@@ -4,7 +4,7 @@
 //
 // Field reference:
 //   slug        - unique short name: the page's anchor (#slug) and DOM ids
-//   date        - "YYYY-MM" of the first commit (machine-readable <time>)
+//   date        - "YYYY-MM" of the date in the meta line (machine-readable <time>)
 //   meta_ar     - Arabic meta line, Arabic-Indic numerals (e.g. "يوليو ٢٠٢٥")
 //   meta_en     - English meta line
 //   name_ar     - Arabic project name (the page title on /ar/)
@@ -12,7 +12,7 @@
 //   tagline_ar  - Arabic description (Arabic-Indic numerals)
 //   tagline_en  - English description
 //   color       - the chapter colour, taken from the project's own logo: it fills the chapter's
-//                 text page and its ribbon, dots its contents entry and lights the plate. It carries
+//                 text page, dots its contents entry and lights the plate. It carries
 //                 cream text, so keep it dark enough for 4.5 : 1.
 //   motif       - OPTIONAL key into the diagram registry in motifs.js
 //                 ("qa" | "timeline" | "transcribe" | "search" | "ocr" | "library" | "diacritize" | "tools").
@@ -20,7 +20,6 @@
 //   shot        - OPTIONAL path to a product screenshot (webp, 16:10) for that simple plate
 //   logo        - path to the project's logo (a small raster; never shown above 96px)
 //   links       - array of { type, url }; the type picks the label (see LINKS in book.js)
-//   repositories - OPTIONAL array of { type, url } listed as a short "source code" sub-list
 //   tutorials   - array of { id, title_ar, title_en }; id is the YouTube video id.
 //                 Listed as video links at the foot of the chapter's page; an empty array shows none.
 

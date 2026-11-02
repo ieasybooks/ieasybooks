@@ -8,8 +8,8 @@ const LOCALE = root.lang === "ar" ? "ar" : "en";
 const RTL = root.dir === "rtl";
 
 const STR = {
-  ar: { notes: "شروحات", source: "الشيفرة المصدرية", yt: "، فيديو على يوتيوب", menu: "الفهرس", next: "التالي:", end: "خاتمة" },
-  en: { notes: "Tutorials", source: "Source code", yt: ", video on YouTube", menu: "Contents", next: "Next:", end: "Colophon" },
+  ar: { notes: "شروحات", yt: "، فيديو على يوتيوب", menu: "الفهرس", next: "التالي:", end: "خاتمة" },
+  en: { notes: "Tutorials", yt: ", video on YouTube", menu: "Contents", next: "Next:", end: "Colophon" },
 }[LOCALE];
 const ORDINAL = {
   ar: ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر"],
@@ -54,6 +54,8 @@ function setV(el, on) { if (el._v !== on) { el.classList.toggle("is-on", on); el
 const scroller = () => S.lay === "pocket" ? document.body : document.scrollingElement;
 const scrollPos = () => scroller().scrollTop;
 const scrollToPos = (top) => scroller().scrollTo({ top, behavior: "auto" });
+// Safari drops the semantics of a list set without markers unless it has the role.
+const listRole = (el) => el.querySelectorAll("ol, ul").forEach((l) => l.setAttribute("role", "list"));
 
 /* --------------------------------------------------------------------- build */
 const book = $("#book");
@@ -93,7 +95,7 @@ function linksBlock(p) {
   const links = p.links.filter((l) => l.url && LINKS[l.type]);
   const primaryType = PRIMARY_ORDER.find((t) => links.some((l) => l.type === t));
   const primary = links.find((l) => l.type === primaryType);
-  const rest = links.filter((l) => l !== primary && (l.type !== "github" || !p.repositories?.length));
+  const rest = links.filter((l) => l !== primary);
   const out = h("div", { class: "links" });
   if (primary) {
     const a = external(primary.url, h("span", {}, PRIMARY_LABEL[primary.type][LOCALE]), h("span", { class: "links__arrow", "aria-hidden": "true" }));
@@ -107,15 +109,6 @@ function linksBlock(p) {
       a.dataset.link = l.type;
       return h("li", {}, a);
     })));
-  }
-  if (p.repositories?.length) {
-    // several repositories fold into one quiet sub-list
-    const items = [];
-    p.repositories.forEach((r, i) => {
-      if (i) items.push(LOCALE === "ar" ? "، " : ", ");
-      items.push(h("li", {}, external(r.url, LINKS[r.type]?.[LOCALE] || r.type)));
-    });
-    out.append(h("div", { class: "links__src" }, `${STR.source}: `, h("ul", {}, items)));
   }
   return out;
 }
@@ -248,15 +241,18 @@ const navList = h("ol", { class: "index__list", id: "index-list" }, entries.map(
 const navNow = h("span", { class: "index__now", "aria-hidden": "true" }, entries.map(sp => h("span", {}, sp.name)));
 const navToggle = h("button", { class: "index__toggle", type: "button", "aria-label": STR.menu, "aria-expanded": "false", "aria-controls": "index-list" }, navNow);
 nav.append(navToggle, navList);
+const closeNav = () => { nav.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false"); };
 const navLinks = [...navList.querySelectorAll("a")];
 const navNames = [...navNow.children];
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)");
 const S = { mode: "", lay: "", k: 1, H: 932, measured: false, shift: 0 };
 let units = [], current = -1;
 // Desktops hold the open book; phones and tablets held upright hold it one page at a time (the
-// paperback); a phone on its side, or reduced motion, reads one plain scroll.
-const chooseMode = () => REDUCED.matches ? "static" : root.clientWidth >= 1024 ? "desk"
-  : innerHeight >= 500 && innerHeight >= root.clientWidth ? "pocket" : "phone";
+// paperback); a phone on its side, or reduced motion, reads one plain scroll. The window is measured
+// with its scrollbar, so a layout that hides the page's scrollbar can't overturn its own choice.
+const WIDE = matchMedia("(min-width: 1024px)"), UPRIGHT = matchMedia("(orientation: portrait)");
+const chooseMode = () => REDUCED.matches ? "static" : WIDE.matches ? "desk"
+  : innerHeight >= 500 && UPRIGHT.matches ? "pocket" : "phone";
 
 /* ------------------------------------------------------------------ the object */
 // One 1320-unit sheet. Two 660-unit boards hinge on the spine; each page is 640 × PH,
@@ -276,7 +272,7 @@ for (const pg of PAGES) pg._shade = pg.querySelector(":scope > .pg__shade");
 for (const board of [cover, backcover]) board._shades = [...board.querySelectorAll(".board__shade")];
 
 function layout() {
-  const mode = chooseMode(), lay = root.clientWidth >= 1024 ? "sheet" : mode === "pocket" ? "pocket" : "fluid";
+  const mode = chooseMode(), lay = WIDE.matches ? "sheet" : mode === "pocket" ? "pocket" : "fluid";
   const changed = mode !== S.mode || lay !== S.lay;
   if (changed) {
     stopHands();
@@ -295,6 +291,7 @@ function layout() {
     }
     for (const pg of PAGES) paint(pg._shade, "");
     for (const board of [cover, backcover]) board._shades.forEach(el => paint(el, ""));
+    closeNav();
     sheet.style.perspectiveOrigin = "";
     hero.inert = false;
     // The paperback reads its hero above the book; the open book keeps it beside the closed board.
@@ -392,6 +389,7 @@ function mountMotifs(force) {
     const key = `${S.lay}:${size.w}:${size.h}:${S.k}`;
     if (force || sp.motifKey !== key) {
       sp.motif.inst.mount({ narrow, w: size.w, h: size.h, px: (devicePixelRatio || 1) * (narrow ? 1 : S.k) });
+      listRole(sp.motif.inst.el);
       sp.motif.inst.update(S.mode === "desk" ? 0 : 1);
       sp.motifKey = key; sp.lastP = undefined;
     }
@@ -956,7 +954,8 @@ function pkTimeline() {
   });
   PK.back = [y, y + .45 * vh];
   PK.end = PK.back[1];
-  book.style.height = `${Math.ceil(PK.end + vh)}px`;
+  // the body scrolls to the end even when it runs taller than the book's 100svh
+  book.style.height = `${Math.ceil(PK.end + Math.max(vh, document.body.clientHeight))}px`;
   PK.top = Math.round(book.getBoundingClientRect().top + scrollPos());
 }
 
@@ -1106,8 +1105,9 @@ function pkJump(el) {
   let yl = PK.end;
   if (!backcover.contains(el)) {
     let i = POCKET.findIndex((pg) => pg.el.contains(el));
-    // a spread opens on its first page, except the opening, whose link names its contents page
-    if (i < 0) { const sp = spreads.find((sp) => sp.el.contains(el)); i = POCKET.findIndex((pg) => pg.sp === sp && (!sp.isOpening || pg.el === sp.plate)); }
+    // a spread opens on its first page, except the opening and the colophon, whose links name their
+    // second page: the contents, and the colophon itself
+    if (i < 0) { const sp = spreads.find((sp) => sp.el.contains(el)); i = POCKET.findIndex((pg) => pg.sp === sp && (!(sp.isOpening || sp.isColophon) || pg.el === sp.plate)); }
     if (i < 0) return false;
     yl = PK.units[i].land + 1;
   }
@@ -1168,14 +1168,15 @@ function jumpTo(el) {
   const top = cover.contains(el) ? 0 : backcover.contains(el) ? S.end : sp?.unit.land;
   if (top == null) return false;
   stopHands();
-  scrollToPos(Math.ceil(top + 1));
+  // the closed book rests at 0 exactly, where a hand can open it
+  scrollToPos(top ? Math.ceil(top + 1) : 0);
   return true;
 }
 document.addEventListener("click", e => {
   const a = e.target.closest(".index a[data-slug], .opening__list a[data-slug], .hero__list a[data-slug], .topbar a[data-slug], a.catch");
   if (!a) return;
   const slug = a.dataset.slug || a.dataset.next;
-  nav.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false");
+  closeNav();
   // A catchword turns the leaf it stands on.
   const st = S.mode === "desk" && units.length ? sceneAt(scrollPos()) : null;
   if (a.classList.contains("catch") && st?.kind === "rest" && spreads[st.i + 1]?.slug === slug && step(1)) {
@@ -1188,10 +1189,10 @@ navToggle.addEventListener("click", () => {
 });
 // The paperback's contents rise as a sheet; a tap on the dimmed book closes them.
 nav.addEventListener("click", (e) => {
-  if (e.target === nav) { nav.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false"); }
+  if (e.target === nav) closeNav();
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { nav.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false"); return; }
+  if (e.key === "Escape") { closeNav(); return; }
   if ((S.mode !== "desk" && S.mode !== "pocket") || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
   if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
   const next = RTL ? "ArrowLeft" : "ArrowRight", prev = RTL ? "ArrowRight" : "ArrowLeft";
@@ -1213,7 +1214,7 @@ addEventListener("scroll", onScroll, { passive: true });
 document.body.addEventListener("scroll", onScroll, { passive: true });
 addEventListener("resize", () => requestAnimationFrame(layout));
 REDUCED.addEventListener?.("change", layout);
-document.querySelectorAll("ol, ul").forEach(list => list.setAttribute("role", "list"));
+listRole(document);
 root.classList.add("js");
 initLocalePersistence(LOCALE);
 layout();

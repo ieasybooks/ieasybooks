@@ -72,11 +72,12 @@ generated raster imagery.
 Add an entry to `projects` in `assets/js/projects.js`. The book runs from the newest project to the
 oldest, so a new one usually goes first:
 
-1. Supply `slug`, `date`, `meta_ar` / `meta_en`, `name_ar` / `name_en`, `tagline_ar` / `tagline_en`, and `logo`. Arabic numbers use Arabic-Indic figures, with nonbreaking spaces between numbers and nouns.
+1. Supply `slug`, `date`, `meta_ar` / `meta_en`, `name_ar` / `name_en`, `tagline_ar` / `tagline_en`, and `logo`. Arabic numbers use Arabic-Indic figures; the page keeps a number with its noun, and a lone «و» with the word after it.
 2. `color` is the chapter colour, taken from the project's logo. It fills the text page under cream type, so keep it dark enough for 4.5 : 1. The page's fainter labels are strengthened as far as that colour needs to keep 4.5 : 1 too.
-3. `links` contains `{ type, url }` entries. The website, the tool in the browser (`browser`) or the main download is primary; the rest are secondary links. Link a download to a URL its own project keeps pointing at the newest build (Aljam3's desktop app links `aljam3.com/desktop/windows` and `/macos`), not to a GitHub release looked up from the page. Optional `repositories` supplies a short source-code list. Link labels live in `LINKS` in `book.js`.
+3. `links` contains `{ type, url }` entries. The website, the tool in the browser (`browser`) or the main download is primary; the rest are secondary links. Link a download to a URL its own project keeps pointing at the newest build (Aljam3's desktop app links `aljam3.com/desktop/windows` and `/macos`), not to a GitHub release looked up from the page. Link labels live in `LINKS` in `book.js`.
 4. `tutorials` contains `{ id, title_ar, title_en }` entries, where `id` is a YouTube video ID. An empty array shows none; four or more pair up on the desktop page.
 5. `motif` selects a plate from the `motifs` registry. Without it, `shot` supplies a screenshot plate, or `logo` a small mark.
+6. Add the project to the `<noscript>` list in `ar/index.html` and `en/index.html` too, for readers without JavaScript.
 
 Chapter labels, folios, the hero and contents lists, catchwords and the scroll budget follow the array order.
 A plate plays its beats as the reader scrolls (about a quarter of a screen per beat), then holds before the turn.

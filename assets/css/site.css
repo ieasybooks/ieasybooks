@@ -115,10 +115,8 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .links__primary:active { transform:scale(.98); }
 .links__primary:focus-visible { outline-color:var(--on); }
 .links__more { display:flex; flex-wrap:wrap; gap:4px 20px; color:var(--t2); font-size:15px; }
-.links__src { flex-basis:100%; color:var(--t3); font-size:14px; }
-.links__src ul,.links__src li { display:inline; }
-.links__more a,.links__src a { color:var(--t2); transition:color .15s var(--ease); }
-.links__more a:hover,.links__more a:focus-visible,.links__src a:hover,.links__src a:focus-visible { color:var(--t1); text-decoration:underline; }
+.links__more a { color:var(--t2); transition:color .15s var(--ease); }
+.links__more a:hover,.links__more a:focus-visible { color:var(--t1); text-decoration:underline; }
 .glosses { margin-top:auto; padding-top:32px; }
 .glosses__head { margin-bottom:8px; color:var(--t3); font-size:14px; }
 .glosses a { display:flex; align-items:center; gap:12px; min-height:48px; border-top:1px solid var(--line); font-size:16px; line-height:1.4; }
@@ -235,7 +233,6 @@ button { font:inherit; color:inherit; background:none; border:0; padding:0; curs
 .lay-sheet .links__primary { height:calc(40px + 16px * var(--lift)); gap:12px; padding-inline:24px; border-radius:12px; font-size:calc(19px * var(--lift)); }
 .lay-sheet .links__arrow { width:calc(18px * var(--lift)); height:calc(18px * var(--lift)); }
 .lay-sheet .links__more { gap:4px 24px; font-size:calc(18px * var(--lift)); }
-.lay-sheet .links__src { font-size:calc(16px * var(--lift)); }
 .lay-sheet .glosses__head { font-size:calc(16px * var(--lift)); }
 .lay-sheet .glosses a { min-height:calc(40px + 16px * var(--lift)); gap:14px; font-size:calc(19px * var(--lift)); }
 .lay-sheet .glosses__play { width:calc(22px * var(--lift)); height:calc(22px * var(--lift)); }
@@ -415,7 +412,6 @@ html.lay-pocket { height:100%; overflow:hidden; }
 .lay-pocket .links { gap:8px 18px; margin-top:20px; }
 .lay-pocket .links__primary { height:44px; padding-inline:18px; font-size:15px; }
 .lay-pocket .links__more { gap:2px 16px; font-size:14px; }
-.lay-pocket .links__src { font-size:13px; }
 .lay-pocket .glosses { padding-top:16px; }
 .lay-pocket .glosses a { min-height:44px; font-size:15px; }
 .lay-pocket .pg--tight .title { margin-top:4px; font-size:40px; }
@@ -456,7 +452,6 @@ html.lay-pocket { height:100%; overflow:hidden; }
   .lay-pocket .links,.lay-pocket .pg--tight .links { gap:12px 24px; margin-top:36px; }
   .lay-pocket .links__primary { height:52px; padding-inline:22px; font-size:17px; }
   .lay-pocket .links__more { font-size:16px; }
-  .lay-pocket .links__src { font-size:15px; }
   .lay-pocket .glosses__head { font-size:15px; }
   .lay-pocket .glosses a,.lay-pocket .pg--tight .glosses a { min-height:52px; font-size:17px; }
   .lay-pocket .folio { bottom:28px; font-size:14px; }

@@ -28,13 +28,16 @@ export function fmt(n, locale) {
   return locale === "ar" ? s.replace(/\d/g, (d) => AR_DIGITS[d]).replace(/,/g, "٬") : s;
 }
 
+// A lone «و» stays with the word after it, and a number with its noun.
+const tidy = (str) => str.replace(/(^|\s)و /g, "$1و\u00a0").replace(/([٠-٩0-9]) (?=\p{L})/gu, "$1\u00a0");
+
 // Body text with the Arabic thousands separator set in Amiri: the body face draws «٬» like a
 // Latin comma, so the one character borrows the display face's true separator.
 export function arText(str) {
   const frag = document.createDocumentFragment();
   String(str).split("٬").forEach((part, i) => {
     if (i) frag.append(h("span", { class: "sep" }, "٬"));
-    frag.append(part);
+    frag.append(tidy(part));
   });
   return frag;
 }
@@ -58,8 +61,7 @@ export function h(tag, attrs = {}, ...kids) {
     else if (k === "style") node.style.cssText = v;
     else node.setAttribute(k, v);
   }
-  for (const c of kids.flat()) if (c != null) node.append(typeof c === "string"
-    ? c.replace(/حافظ بن أحمد/g, "حافظ\u00a0بن\u00a0أحمد").replace(/أولًا وآخرًا/g, "أولًا\u00a0وآخرًا").replace(/(^|\s)و /g, "$1و\u00a0").replace(/([٠-٩0-9٬,]) (?=[\p{L}])/gu, "$1\u00a0") : c);
+  for (const c of kids.flat()) if (c != null) node.append(typeof c === "string" ? tidy(c) : c);
   return node;
 }
 
@@ -198,9 +200,8 @@ const qa = {
     const st = {};
     return {
       el,
-      mount(geom) {
+      mount() {
         el.textContent = "";
-        const N = geom.narrow;
         // the source numbers its sections from 2; question n is section n + 1
         const num = (section) => h("span", { class: "m-qa__num" }, fmt(section - 1, ctx.locale));
         const [n1, q1] = QUESTIONS[0];
@@ -277,7 +278,7 @@ const timeline = {
           grp.append(t);
         }
         TC.forEach((txt, i) => {
-          if (i === 1 || i === 3) return; // too tight on a phone: the ticks still show them
+          if (i === 1 || i === 3) return; // the quarter times are left to their ticks: a phone has no room for them
           const lab = h("span", { class: "m-tl__time" }, ltr(timecode(txt, ctx.locale)));
           lab.style.top = `${G.line - (N ? 26 : 30)}px`;
           if (i === 0) lab.style.insetInlineStart = `${G.pad}px`;
@@ -363,7 +364,7 @@ const timeline = {
 
 /* ===================================================== 3. TRANSCRIBE ==
    Tafrigh: a playhead crosses a recording engraved in hairlines; each spoken phrase resolves into
-   a timed transcript line; then the output formats. Neutral lecture-opening formulas only. */
+   a timed transcript line, above the output formats. Neutral lecture-opening formulas only. */
 const LINES = [
   { tc: "00:00:01", text: "الحمد لله، والصلاة والسلام على رسول الله، أما بعد:" },
   { tc: "00:00:08", text: "فهذا هو الدرس الأول من دروس هذه السلسلة،" },
@@ -422,11 +423,11 @@ const transcribe = {
         const fmts = h("div", { class: "m-tr__fmts" }, fl, h("span", { class: "m-tr__fbox", dir: "ltr" }, items));
         place(fmts, 0, geom.h - G.fmtH, G.IW);
         el.append(fmts);
-        Object.assign(st, { G, played, head, rows, items, fl });
+        Object.assign(st, { G, played, head, rows });
       },
       update(p) {
         const { G } = st;
-        // beats 1–2: the playhead crosses the recording; each phrase is highlighted in its line
+        // over all three beats the playhead crosses the recording; each phrase is highlighted in its line
         const f = p;
         setC(st.played, clipFromStart(ctx.rtl, f));
         setT(st.head, `translateX(${tx(ctx.rtl, f * (G.IW - 1)).toFixed(2)}px)`);
@@ -446,30 +447,19 @@ const transcribe = {
 };
 
 /* ========================================================= 4. SEARCH ==
-   Baheth: one query, typed into the field; real results arrive from the three sources, quoted
-   verbatim (truncated with «…»), and the query lights up in each. Retrieved from
+   Baheth: one query, typed into the field; a real result arrives from each of the three sources,
+   quoted verbatim (truncated with «…»), and the query lights up in each. Retrieved from
    baheth.ieasybooks.com for «فضل العلم». Hadith results show their book and chapter only. Each result
    links to its page on Baheth: the transcript at its moment, the hadith, the Shamela page. */
 const QUERY = "فضل العلم";
 const RESULTS = {
-  tr: [
-    { title: "قراءة في فقه الأسماء الحسنى", by: "عبدالرزاق البدر", tc: "00:10:07",
-      url: "media/02-قراءة-في-فقه-الأسماء-الحسنى-الشيخ-عبد-الرزاق-بن-عبد-المحسن-العباد?cue=1678234",
-      text: "[فضل العلم] باسماء الله تعالى وصفاته ان [العلم] باسماء الله وصفاته علم مبارك …" },
-    { title: "ميراث النبوة للجيل الصاعد", by: "أحمد السيد", tc: "00:01:46",
-      text: "[فضل العلم] النافع بعده مراتب الامر والنهي سنتجاوز باب مراتب الامر والنهي …" },
-  ],
-  hd: [
-    { title: "صحيح البخاري", text: "كتاب العلم / [فَضْلِ الْعِلْمِ]", url: "hadiths/be69d2eb-62d8-42da-a07e-6e49f028b545" },
-    { title: "سنن أبي داود", text: "كتاب العلم / باب [فَضْلِ] نَشْرِ [الْعِلْمِ]" },
-    { title: "جامع الترمذي", text: "باب مَا جَاءَ فِي [فَضْلِ] طَلَبِ [الْعِلْمِ]" },
-  ],
-  sh: [
-    { title: "دروس للشيخ محمد المختار الشنقيطي", head: "[فضل العلم] ومعلمه",
-      url: "shamela/pages/1e2eaa7d-fe99-40e6-831f-662ee87762f2",
-      text: "فضّل الله سبحانه وتعالى [العلم] وجعله ميراث الأنبياء، ورفع أهله وفضلهم وشرفهم …" },
-    { title: "مجموع فتاوى ومقالات متنوعة - ابن باز", head: "[فضل العلم] وشرف أهله" },
-  ],
+  tr: { title: "قراءة في فقه الأسماء الحسنى", by: "عبدالرزاق البدر", tc: "00:10:07",
+    url: "media/02-قراءة-في-فقه-الأسماء-الحسنى-الشيخ-عبد-الرزاق-بن-عبد-المحسن-العباد?cue=1678234",
+    text: "[فضل العلم] باسماء الله تعالى وصفاته ان [العلم] باسماء الله وصفاته علم مبارك …" },
+  hd: { title: "صحيح البخاري", text: "كتاب العلم / [فَضْلِ الْعِلْمِ]", url: "hadiths/be69d2eb-62d8-42da-a07e-6e49f028b545" },
+  sh: { title: "دروس للشيخ محمد المختار الشنقيطي", head: "[فضل العلم] ومعلمه",
+    url: "shamela/pages/1e2eaa7d-fe99-40e6-831f-662ee87762f2",
+    text: "فضّل الله سبحانه وتعالى [العلم] وجعله ميراث الأنبياء، ورفع أهله وفضلهم وشرفهم …" },
 };
 const SOURCES = {
   ar: { tr: "التفريغات", hd: "الأحاديث", sh: "الشاملة" },
@@ -513,7 +503,7 @@ const search = {
         const cols = h("div", { class: "m-se__cols" });
         place(cols, 0, fieldH + (N ? 16 : 26), geom.w);
         const groups = ["tr", "hd", "sh"].map((key) => {
-          const r = RESULTS[key][0];
+          const r = RESULTS[key];
           const body = key === "hd"
             ? [h("p", { class: "m-se__t", dir: "rtl", lang: "ar" }, r.title, h("span", { class: "m-se__by" }, " — "), h("span", { class: "m-se__h" }, marked(r.text, hits)))]
             : [h("p", { class: "m-se__t", dir: "rtl", lang: "ar" }, r.title, r.by ? h("span", { class: "m-se__by" }, ` — ${r.by}`) : null),
@@ -556,15 +546,12 @@ const search = {
   },
 };
 
-
 /* ============================================================ 5. OCR ==
    Tahweel: a scanned page of real Arabic text passes under the scan line and resolves into crisp
    text; then DOCX and TXT come out with the same number of pages. The text is a neutral note
    on how the conversion works. */
 const OCR_HEAD = "في التعرّف الضوئي على الحروف";
-const OCR_TEXT = "تمرّ الصفحة الممسوحة ضوئيًا بثلاث مراحل: تُحلَّل الصورة أولًا لتمييز السطور والكلمات، ثم يُقرأ كل حرف ويُقابَل بما يشبهه في النماذج المدرَّبة، وأخيرًا يُجمَع النص ويُرتَّب على هيئة الصفحة الأصلية. وتُحفظ المخرجات صفحةً بصفحة، فيبقى عدد صفحات الملف الناتج مساويًا لعدد صفحات الملف الأصلي، ويسهل الرجوع إلى موضع أي فقرة في المصدر. ويمكن تحويل ملف واحد أو مجلد كامل دفعة واحدة؛ وكلما كانت الصفحة أنظف والسطور أقوم كان التعرّف أدق.";
-
-const OCR_EXCERPT = OCR_TEXT.split("،")[0] + "، …";
+const OCR_EXCERPT = "تمرّ الصفحة الممسوحة ضوئيًا بثلاث مراحل: تُحلَّل الصورة أولًا لتمييز السطور والكلمات، …";
 function sheet(kind) {
   return h("div", { class: `m-ocr__sheet m-ocr__sheet--${kind}`, dir: "rtl", lang: "ar" },
     h("div", { class: "m-ocr__ink" }, h("h4", {}, OCR_HEAD), h("p", {}, OCR_EXCERPT)));
@@ -653,9 +640,9 @@ function stack(u, y, w, hgt, n, d, rtl) {
   return wrap;
 }
 
-
-/* Classical Islamic books are stored flat; their named tail edges face the reader. Each opens its
-   book on Aljam3, in the standard edition (book ids checked on aljam3.com, 2026-11-01). */
+/* ======================================================== 6. LIBRARY ==
+   Aljam3: classical Islamic books are stored flat; their named tail edges face the reader. Each opens
+   its book on Aljam3, in the standard edition (book ids checked on aljam3.com, 2026-11-01). */
 const BOOKS = [
   ["صحيح البخاري", 6197], ["صحيح مسلم", 6237], ["سنن أبي داود", 6178], ["جامع الترمذي", 4458],
   ["سنن النسائي", 6230], ["سنن ابن ماجه", 6184], ["موطأ مالك", 6341], ["مسند أحمد", 4510],
@@ -668,22 +655,24 @@ const library = {
   beats: 2,
   size: { wide: { w: 560, h: 650 }, narrow: { w: 310, h: 500 } },
   create(ctx) {
-    const el=h("div",{class:"m m-lib"}); let books = [];
+    const el = h("div", { class: "m m-lib" });
+    let books = [];
     return {
       el,
       mount(geom) {
-        el.textContent="";
-        const shelf=h("div",{class:"m-lib__shelves"});
+        el.textContent = "";
+        const shelf = h("div", { class: "m-lib__shelves" });
         books = [];
-        const piles=4, count=5;
-        for(let i=0;i<piles;i++) {
-          const pile=h("div",{class:"m-lib__pile"});
-          for(let j=0;j<count;j++) {
-            const n=i*count+j;
-            const thickness=(geom.narrow ? [38,40,36,44,38] : [42,48,40,54,44])[(j+i)%count];
+        const piles = 4, count = 5;
+        for (let i = 0; i < piles; i++) {
+          const pile = h("div", { class: "m-lib__pile" });
+          for (let j = 0; j < count; j++) {
+            const n = i * count + j;
+            const thickness = (geom.narrow ? [38, 40, 36, 44, 38] : [42, 48, 40, 54, 44])[(j + i) % count];
             const [title, id] = BOOKS[n];
-            const book=h("a",{class:"m-lib__book",href:`https://aljam3.com/${ctx.locale}/${id}`,target:"_blank",rel:"noopener noreferrer",style:`--binding:${BINDINGS[n%BINDINGS.length]};--bw:${98-(n%4)*4}%;--bh:${thickness}px;--shift:${[0,-3,4,-2][n%4]}px`},
-              h("span",{class:"m-lib__tail",lang:"ar",dir:"rtl"},h("span",{class:"m-lib__title"},title)));
+            const book = h("a", { class: "m-lib__book", href: `https://aljam3.com/${ctx.locale}/${id}`, target: "_blank", rel: "noopener noreferrer",
+              style: `--binding:${BINDINGS[n % BINDINGS.length]};--bw:${98 - (n % 4) * 4}%;--bh:${thickness}px;--shift:${[0, -3, 4, -2][n % 4]}px` },
+              h("span", { class: "m-lib__tail", lang: "ar", dir: "rtl" }, h("span", { class: "m-lib__title" }, title)));
             books.push(book);
             pile.append(book);
           }
@@ -702,7 +691,6 @@ const library = {
   },
 };
 
-/* ===================================================== the registry */
 /* ===================================================== 7. DIACRITIZE ==
    Tashkeel: one line, set large, takes its diacritics word by word as the chosen model reads it;
    then the formats it writes. The hadith and its marks are the tool's own: the text and the
@@ -824,6 +812,7 @@ const tools = {
   },
 };
 
+/* ===================================================== the registry */
 export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools };
 
 /* A project without a motif: its screenshot as a plate, otherwise its logo on a small tile. */
