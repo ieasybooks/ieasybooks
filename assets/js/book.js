@@ -1,7 +1,7 @@
 // Scroll-scrubbed book. Hard boards swing on the spine in 3D; paper leaves fold like paper and can be dragged.
-import { projects } from "./projects.js";
-import { motifs, fallbackPlate, fmt, arText, PLATE, NARROW, h, seg, lerp, clamp01, easeOut, easeInOut, setT, setO, setC } from "./motifs.js";
-import { initLocalePersistence } from "./i18n.js";
+import { projects } from "./projects.js?v=2";
+import { motifs, fallbackPlate, fmt, arText, PLATE, NARROW, h, seg, lerp, clamp01, easeOut, easeInOut, setT, setO, setC } from "./motifs.js?v=2";
+import { initLocalePersistence } from "./i18n.js?v=2";
 
 const root = document.documentElement;
 const LOCALE = root.lang === "ar" ? "ar" : "en";
