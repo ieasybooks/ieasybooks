@@ -18,146 +18,139 @@
   <meta property="og:url" content="https://ieasybooks.com/en/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
-  <meta property="og:image" content="https://ieasybooks.com/assets/og/og.png">
+  <meta property="og:image" content="https://ieasybooks.com/assets/og/en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="iEasyBooks — Islamic Apps">
   <meta name="twitter:description" content="We build Islamic apps that make access to Islamic sciences easy.">
-  <meta name="twitter:image" content="https://ieasybooks.com/assets/og/og.png">
+  <meta name="twitter:image" content="https://ieasybooks.com/assets/og/en.png">
 
-  <!-- Favicons (produced in Task 13) -->
+  <!-- Favicons -->
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#f4f0e9">
 
-  <!-- Preload critical resources to reduce LCP -->
-  <link rel="preload" href="/assets/logos/ieasybooks.png" as="image" fetchpriority="high">
-  <link rel="preload" href="/assets/fonts/Noor-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/assets/fonts/Inter-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- The board's display face and the interface face paint the closed book first. -->
+  <link rel="preload" href="/assets/fonts/Alexandria-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/IBMPlexSansArabic-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 
   <link rel="stylesheet" href="/assets/css/site.css">
-
-  <noscript>
-    <style>
-      .reveal { opacity: 1 !important; transform: none !important; }
-      #timeline-fallback { display: block !important; }
-      #timeline:empty { display: none; }
-    </style>
-  </noscript>
+  <script type="module" src="/assets/js/book.js"></script>
 </head>
 <body>
-
-  <header class="hero">
-    <div class="hero__logo">
-      <img src="/assets/logos/ieasybooks.png" alt="ieasybooks" width="88" height="88">
+  <header class="topbar">
+    <a class="topbar__brand" href="#top" data-slug="top"><span class="mark" aria-hidden="true"></span>iEasyBooks</a>
+    <div class="topbar__nav">
+      <a href="#opening" data-slug="opening">Contents</a>
+      <a href="#contact" data-slug="contact">Get in touch</a>
+      <a href="https://github.com/ieasybooks" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="topbar__lang" href="/ar/" lang="ar" hreflang="ar" dir="rtl" data-locale="ar">العربية</a>
     </div>
-    <h1 class="hero__name">الكتب الميسّرة</h1>
-    <div class="hero__subtitle latin">ieasybooks</div>
-    <p class="hero__tagline">We build Islamic apps that make access to Islamic sciences easy.</p>
-    <nav class="hero__locales" aria-label="Language">
-      <a class="hero__locale latin" href="/ar/" data-locale="ar">AR</a>
-      <a class="hero__locale latin" href="/en/" aria-current="true" data-locale="en">EN</a>
-    </nav>
-    <div class="hero__scroll-hint" aria-hidden="true">Projects ↓</div>
   </header>
+  <div class="book" id="book">
+    <div class="stage" id="stage">
+      <div class="sheet" id="sheet">
 
-  <main id="timeline" class="timeline"></main>
+        <div class="cover" id="top">
+          <div class="cover__in">
+            <span class="mark cover__mark" role="img" aria-label="The iEasyBooks mark"></span>
+            <h1 class="cover__title">iEasyBooks</h1>
+          </div>
+        </div>
 
-  <!-- Visible only when JS is disabled -->
-  <noscript>
-    <div id="timeline-fallback" class="timeline" style="padding: var(--s-7) var(--s-5);">
-      <h2 class="project-card__name-primary" style="text-align:center;">Projects</h2>
-      <ul style="margin-top: var(--s-5); max-width: 520px; margin-left: auto; margin-right: auto;">
-        <li style="padding: var(--s-3) 0; border-bottom: 1px solid var(--c-border);"><a href="https://islam200qa.ieasybooks.com">Islam 200 QA</a></li>
-        <li style="padding: var(--s-3) 0; border-bottom: 1px solid var(--c-border);"><a href="https://github.com/ieasybooks/taqtie">Taqtie</a></li>
-        <li style="padding: var(--s-3) 0; border-bottom: 1px solid var(--c-border);"><a href="https://tafrigh.ieasybooks.com">Tafrigh</a></li>
-        <li style="padding: var(--s-3) 0; border-bottom: 1px solid var(--c-border);"><a href="https://baheth.ieasybooks.com">Baheth</a></li>
-        <li style="padding: var(--s-3) 0; border-bottom: 1px solid var(--c-border);"><a href="https://tahweel.ieasybooks.com">Tahweel</a></li>
-        <li style="padding: var(--s-3) 0;"><a href="https://aljam3.com">Aljam3</a></li>
-      </ul>
-    </div>
-  </noscript>
+        <section class="hero" aria-labelledby="hero-title">
+          <h2 class="hero__title" id="hero-title">We build Islamic apps that make access to Islamic sciences easy</h2>
+          <p class="hero__sub">A non-profit initiative building free software for students of knowledge, scholars and preachers since 2022</p>
+          <ol class="hero__list" id="hero-list"></ol>
+        </section>
 
-  <section class="stats reveal" aria-label="Statistics">
-    <div class="stats__item">
-      <div class="stats__number">+100K</div>
-      <div class="stats__label">App Downloads</div>
-    </div>
-    <div class="stats__divider"></div>
-    <div class="stats__item">
-      <div class="stats__number">+150K</div>
-      <div class="stats__label">Package Downloads</div>
-    </div>
-    <div class="stats__divider"></div>
-    <div class="stats__item">
-      <div class="stats__number">+430K</div>
-      <div class="stats__label">Monthly Visitors</div>
-    </div>
-  </section>
+        <nav class="index" id="index" aria-label="Contents"></nav>
 
-  <section class="tutorials reveal" aria-label="Tutorials">
-    <h2 class="tutorials__title">Tutorials</h2>
-    <div class="tutorials__row">
-      <div class="tutorials__project">Taqtie</div>
-      <div class="tutorials__links">
-        <a class="tutorials__link" href="https://youtu.be/iZfanvvwxL8" target="_blank" rel="noopener noreferrer">Windows Install <span class="tutorials__play">▶</span></a>
-        <a class="tutorials__link" href="https://youtu.be/L0eSBRZqk58" target="_blank" rel="noopener noreferrer">macOS Install <span class="tutorials__play">▶</span></a>
-        <a class="tutorials__link" href="https://youtu.be/Di0vcmnxULs" target="_blank" rel="noopener noreferrer">How to Use <span class="tutorials__play">▶</span></a>
+        <div class="boards" aria-hidden="true">
+          <span class="stack stack--l" id="stack-l"></span>
+          <span class="stack stack--r" id="stack-r"></span>
+        </div>
+
+        <main class="spreads" id="spreads">
+          <noscript>
+            <section class="contents">
+              <h2 class="contents__head">Projects</h2>
+              <ol class="contents__list">
+                <li><a href="https://arabi.tools">arabi.tools</a><span>October 2026</span></li>
+                <li><a href="https://arabi.tools/diacritize">Tashkeel</a><span>October 2026</span></li>
+                <li><a href="https://aljam3.com">Aljam3</a><span>July 2025</span></li>
+                <li><a href="https://arabi.tools/ocr">Tahweel</a><span>October 2024</span></li>
+                <li><a href="https://baheth.ieasybooks.com">Baheth</a><span>July 2023</span></li>
+                <li><a href="https://github.com/ieasybooks/taqtie">Taqtie</a><span>April 2023</span></li>
+                <li><a href="https://arabi.tools/transcribe">Tafrigh</a><span>March 2023</span></li>
+                <li><a href="https://islam200qa.ieasybooks.com">Islam 200 QA</a><span>October 2022</span></li>
+              </ol>
+            </section>
+          </noscript>
+
+          <section class="spread spread--colophon" id="colophon" aria-labelledby="t-colophon">
+            <div class="pg pg--text pg--stats">
+              <div class="jadwal">
+                <p class="ledger__lead">More than</p>
+                <table class="ledger" aria-label="In numbers"><tbody>
+                  <tr><td><span class="ledger__quantity"><b>500,000</b></span> <span class="ledger__label">visits every month</span></td></tr>
+                  <tr><td><span class="ledger__quantity"><b>150,000</b></span> <span class="ledger__label">app downloads</span></td></tr>
+                  <tr><td><span class="ledger__quantity"><b>150,000</b></span> <span class="ledger__label">software-library downloads</span></td></tr>
+                </tbody></table>
+              </div>
+              <p class="folio" aria-hidden="true">19</p>
+              <span class="pg__shade" aria-hidden="true"></span>
+            </div>
+            <div class="pg pg--plate pg--colophon">
+              <div class="jadwal">
+                <div class="block">
+                  <h2 class="colophon__head" id="t-colophon">Colophon</h2>
+                  <p class="colophon__text">Here ends the book of iEasyBooks: a non-profit initiative that, since 2022, has built free software for students of knowledge, scholars and preachers, making the Islamic sciences easier to reach. All praise is due to God, first and last.</p>
+                </div>
+              </div>
+              <p class="folio" aria-hidden="true">20</p>
+              <span class="pg__shade" aria-hidden="true"></span>
+            </div>
+          </section>
+        </main>
+
+        <span class="gutter" aria-hidden="true"></span>
+        <span class="turnshadow" aria-hidden="true"></span>
+
+        <footer class="backcover" id="contact">
+          <div class="backcover__in">
+            <div class="backcover__body">
+              <div class="backcover__groups">
+                <section class="contact" aria-labelledby="c-talk">
+                  <h2 class="contact__head" id="c-talk">Get in touch</h2>
+                  <ul>
+                    <li><a href="https://t.me/ieasybooks" target="_blank" rel="noopener noreferrer"><span class="contact__label">Telegram</span><span class="contact__handle" dir="ltr">t.me/ieasybooks</span></a></li>
+                    <li><a href="https://youtube.com/@ieasybooks" target="_blank" rel="noopener noreferrer"><span class="contact__label">YouTube</span><span class="contact__handle" dir="ltr">@ieasybooks</span></a></li>
+                    <li><a href="https://x.com/iieasybooks" target="_blank" rel="noopener noreferrer"><span class="contact__label">X</span><span class="contact__handle" dir="ltr">@iieasybooks</span></a></li>
+                    <li><a href="https://fb.com/ieasybooks" target="_blank" rel="noopener noreferrer"><span class="contact__label">Facebook</span><span class="contact__handle" dir="ltr">fb.com/ieasybooks</span></a></li>
+                    <li><a href="mailto:easybooksdev@gmail.com"><span class="contact__label">Email</span><span class="contact__handle" dir="ltr">easybooksdev@gmail.com</span></a></li>
+                  </ul>
+                </section>
+                <section class="contact" aria-labelledby="c-open">
+                  <h2 class="contact__head" id="c-open">Open source</h2>
+                  <ul>
+                    <li><a href="https://github.com/ieasybooks" target="_blank" rel="noopener noreferrer"><span class="contact__label">GitHub</span><span class="contact__handle" dir="ltr">ieasybooks</span></a></li>
+                    <li><a href="https://huggingface.co/ieasybooks-org" target="_blank" rel="noopener noreferrer"><span class="contact__label">Hugging Face</span><span class="contact__handle" dir="ltr">ieasybooks-org</span></a></li>
+                  </ul>
+                </section>
+              </div>
+            </div>
+            <p class="backcover__copy">© iEasyBooks 2026</p>
+          </div>
+          <span class="pg__shade" aria-hidden="true"></span>
+        </footer>
+
       </div>
     </div>
-    <div class="tutorials__row">
-      <div class="tutorials__project">Tafrigh</div>
-      <div class="tutorials__links">
-        <a class="tutorials__link" href="https://youtu.be/qFsUwp5iomU" target="_blank" rel="noopener noreferrer">Browser <span class="tutorials__play">▶</span></a>
-      </div>
-    </div>
-    <div class="tutorials__row">
-      <div class="tutorials__project">Baheth</div>
-      <div class="tutorials__links">
-        <a class="tutorials__link" href="https://youtu.be/vl90LkLgfE4" target="_blank" rel="noopener noreferrer">Platform <span class="tutorials__play">▶</span></a>
-        <a class="tutorials__link" href="https://youtu.be/BHslgbgwmIQ" target="_blank" rel="noopener noreferrer">Extension <span class="tutorials__play">▶</span></a>
-      </div>
-    </div>
-    <div class="tutorials__row">
-      <div class="tutorials__project">Tahweel</div>
-      <div class="tutorials__links">
-        <a class="tutorials__link" href="https://youtu.be/MsLRFT50pNo" target="_blank" rel="noopener noreferrer">Browser <span class="tutorials__play">▶</span></a>
-        <a class="tutorials__link" href="https://youtu.be/6v11HdJsQtk" target="_blank" rel="noopener noreferrer">Desktop <span class="tutorials__play">▶</span></a>
-      </div>
-    </div>
-    <div class="tutorials__row">
-      <div class="tutorials__project">Aljam3</div>
-      <div class="tutorials__links">
-        <a class="tutorials__link" href="https://youtu.be/JvFmqlbbg84" target="_blank" rel="noopener noreferrer">Platform <span class="tutorials__play">▶</span></a>
-        <a class="tutorials__link" href="https://youtu.be/XGJ-BanIw9w" target="_blank" rel="noopener noreferrer">API <span class="tutorials__play">▶</span></a>
-      </div>
-    </div>
-  </section>
-
-  <footer class="site-footer">
-    <div class="site-footer__socials">
-      <!-- CSS-mask pattern: the icon SVG is loaded via the --mask custom property and
-           painted by background-color, so hover color shifts work against any palette color. -->
-      <a class="site-footer__social" style="--mask:url(/assets/icons/telegram.svg)" href="https://t.me/ieasybooks" target="_blank" rel="noopener noreferrer" aria-label="Telegram"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/youtube.svg)"  href="https://youtube.com/@ieasybooks" target="_blank" rel="noopener noreferrer" aria-label="YouTube"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/x.svg)"        href="https://twitter.com/iieasybooks" target="_blank" rel="noopener noreferrer" aria-label="X"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/facebook.svg)" href="https://fb.com/ieasybooks" target="_blank" rel="noopener noreferrer" aria-label="Facebook"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/github.svg)"   href="https://github.com/ieasybooks" target="_blank" rel="noopener noreferrer" aria-label="GitHub"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/huggingface.svg)" href="https://huggingface.co/ieasybooks-org" target="_blank" rel="noopener noreferrer" aria-label="Hugging Face"></a>
-      <a class="site-footer__social" style="--mask:url(/assets/icons/email.svg)"    href="mailto:easybooksdev@gmail.com" aria-label="Email"></a>
-    </div>
-    <p class="site-footer__copy" dir="rtl">© <span style="font-family:var(--font-ar)">الكتب الميسّرة</span> 2026</p>
-  </footer>
-
-  <script type="module">
-    import { renderTimeline } from "/assets/js/render.js";
-    import { initReveal } from "/assets/js/reveal.js";
-    import { initLocalePersistence } from "/assets/js/i18n.js";
-
-    initLocalePersistence("en");
-    renderTimeline(document.getElementById("timeline"), "en");
-    initReveal();
-  </script>
+  </div>
 </body>
 </html>
