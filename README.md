@@ -55,8 +55,8 @@ ledger and colophon remain readable.
 
 - `ar/index.html`, `en/index.html`: the locale-specific top bar, hero, boards, ledger and colophon, with noscript content.
 - `assets/js/projects.js`: the single source of truth for project descriptions, dates and links.
-- `assets/js/book.js`: builds the spreads and navigation, lays out the desktop book, the paperback or the plain scroll, and drives each from the scroll position; updates the Aljam3 desktop app's latest-release download links, preserving fallback URLs on failure.
-- `assets/js/motifs.js`: the plates and their product actions: diacritization, cutting, transcript highlighting, search, OCR, named flat-stacked books and the Q&A reading wash. Baheth's results and Aljam3's books link to their pages on those sites.
+- `assets/js/book.js`: builds the spreads and navigation, lays out the desktop book, the paperback or the plain scroll, and drives each from the scroll position.
+- `assets/js/motifs.js`: the plates and their product actions: arabi.tools' three tools converting in turn, diacritization, cutting, transcript highlighting, search, OCR, named flat-stacked books and the Q&A reading wash. arabi.tools' tools, Baheth's results and Aljam3's books link to their pages on those sites.
 - `assets/css/site.css`: tokens, layout, typography and physical lighting.
 - `assets/logos/ieasybooks-mark.svg`: the one-colour mark, converted from the initiative's own vector logo. It masks the top bar, the cover and the title page in their colours.
 - `assets/og/ar.png`, `en.png`: each locale's link preview (1200 × 630), the closed book beside the page's promise, set in the site's own fonts.
@@ -74,7 +74,7 @@ oldest, so a new one usually goes first:
 
 1. Supply `slug`, `date`, `meta_ar` / `meta_en`, `name_ar` / `name_en`, `tagline_ar` / `tagline_en`, and `logo`. Arabic numbers use Arabic-Indic figures, with nonbreaking spaces between numbers and nouns.
 2. `color` is the chapter colour, taken from the project's logo. It fills the text page under cream type, so keep it dark enough for 4.5 : 1. The page's fainter labels are strengthened as far as that colour needs to keep 4.5 : 1 too.
-3. `links` contains `{ type, url }` entries. The website, the tool in the browser (`browser`) or the main download is primary; the rest are secondary links. Optional `repositories` supplies a short source-code list. Link labels live in `LINKS` in `book.js`.
+3. `links` contains `{ type, url }` entries. The website, the tool in the browser (`browser`) or the main download is primary; the rest are secondary links. Link a download to a URL its own project keeps pointing at the newest build (Aljam3's desktop app links `aljam3.com/desktop/windows` and `/macos`), not to a GitHub release looked up from the page. Optional `repositories` supplies a short source-code list. Link labels live in `LINKS` in `book.js`.
 4. `tutorials` contains `{ id, title_ar, title_en }` entries, where `id` is a YouTube video ID. An empty array shows none; four or more pair up on the desktop page.
 5. `motif` selects a plate from the `motifs` registry. Without it, `shot` supplies a screenshot plate, or `logo` a small mark.
 

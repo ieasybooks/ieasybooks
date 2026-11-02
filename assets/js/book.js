@@ -32,7 +32,6 @@ const LINKS = {
   browser:        { ar: "المتصفح", en: "Browser" },
   mcp:            { ar: "المساعدات الذكية (MCP)", en: "AI assistants (MCP)" },
   cli:            { ar: "أداة سطر الأوامر", en: "Command-line tool" },
-  tashkeel:       { ar: "التشكيل من سطر الأوامر", en: "Diacritization on the command line" },
   github:         { ar: "الشيفرة المصدرية", en: "Source code" },
 };
 // The primary link: the website or the tool in the browser, else the main download.
@@ -199,7 +198,7 @@ function openingSpread() {
       h("span", { class: "mark", "aria-hidden": "true" }),
       h("p", { class: "opening__wordmark" }, LOCALE === "ar" ? "الكتب المُيسّرة" : "iEasyBooks"), h("h2", { class: "opening__mission" }, mission)), folio(1), shade());
   const rows = projects.map((p, i) => ({ slug: p.slug, title: p[`name_${LOCALE}`], n: i * 2 + 3, color: p.color }));
-  rows.push({ slug: "colophon", title: STR.end, n: 16 });
+  rows.push({ slug: "colophon", title: STR.end, n: 2 * projects.length + 4 });
   const plate = h("div", { class: "pg pg--contents pg--plate" },
     h("div", { class: "opening__body" }, h("h2", { class: "opening__contents" }, STR.menu),
       h("ol", { class: "opening__list" }, rows.map(r => h("li", { style: r.color ? `--ch:${r.color}` : null }, h("a", { href: `#${r.slug}`, "data-slug": r.slug },
@@ -360,13 +359,16 @@ function fitPages() {
     }
     if (over() && sp.gloss && S.lay === "pocket") $(".jadwal", sp.plate).append(sp.gloss);
   }
-  // The hero beside the closed book gives back its lift the same way.
-  hero.style.removeProperty("--lift");
-  if (S.lay !== "sheet") return;
-  const spills = () => hero.lastElementChild.getBoundingClientRect().bottom - hero.firstElementChild.getBoundingClientRect().top > hero.getBoundingClientRect().height;
-  for (let l = S.lift; spills() && l > 1;) {
-    l = Math.max(1, l - .02);
-    hero.style.setProperty("--lift", l);
+  // The hero beside the closed book and the contents page give back their lift the same way: each is a
+  // centred column that must not outgrow its box.
+  for (const col of [hero, $(".pg--contents .opening__body")]) {
+    col.style.removeProperty("--lift");
+    if (S.lay !== "sheet") continue;
+    const spills = () => col.lastElementChild.getBoundingClientRect().bottom - col.firstElementChild.getBoundingClientRect().top > col.getBoundingClientRect().height;
+    for (let l = S.lift; spills() && l > 1;) {
+      l = Math.max(1, l - .02);
+      col.style.setProperty("--lift", l);
+    }
   }
 }
 
@@ -398,10 +400,9 @@ function mountMotifs(force) {
       const flow = $(".m-qa__flow", sp.box);
       sp.box.style.setProperty("--mh", `${Math.ceil(flow.offsetHeight + 60)}px`);
     }
-    if (sp.project.motif === "diacritize") {
-      const flow = $(".m-dz__flow", sp.box);
-      sp.box.style.setProperty("--mh", `${Math.ceil(flow.offsetHeight)}px`);
-    }
+    // a plate set as one column takes its height from it
+    const fit = $(".m-fit", sp.box);
+    if (fit) sp.box.style.setProperty("--mh", `${Math.ceil(fit.offsetHeight)}px`);
     if (sp.project.motif === "search") {
       const columns = $(".m-se__cols", sp.box);
       sp.box.style.setProperty("--mh", `${Math.ceil(columns.offsetTop + columns.offsetHeight + 28)}px`);
@@ -1221,23 +1222,3 @@ document.fonts?.ready.then(() => {
   const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
   if (target) jumpTo(target);
 });
-
-/* ------------------------------------- Aljam3 desktop: latest release links */
-// The Windows and macOS links point at releases/latest; swap in the direct downloads.
-async function desktopRelease() {
-  const page = document.getElementById("aljam3");
-  if (!page) return;
-  try {
-    const res = await fetch("https://api.github.com/repos/ieasybooks/aljam3-desktop/releases/latest");
-    if (!res.ok) return;
-    const release = await res.json();
-    for (const [type, pattern] of [["windows", /\.exe$/i], ["macos", /\.dmg$/i]]) {
-      const asset = release.assets?.find((x) => pattern.test(x.name));
-      if (!asset) continue;
-      page.querySelectorAll(`a[data-link="${type}"]`).forEach((a) => { a.href = asset.browser_download_url; });
-    }
-  } catch {
-    // the fallback links already point to releases/latest
-  }
-}
-(window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(desktopRelease);

@@ -15,7 +15,7 @@
 //                 text page and its ribbon, dots its contents entry and lights the plate. It carries
 //                 cream text, so keep it dark enough for 4.5 : 1.
 //   motif       - OPTIONAL key into the diagram registry in motifs.js
-//                 ("qa" | "timeline" | "transcribe" | "search" | "ocr" | "library" | "diacritize").
+//                 ("qa" | "timeline" | "transcribe" | "search" | "ocr" | "library" | "diacritize" | "tools").
 //                 Without a motif the page gets a simple plate: `shot` if set, otherwise `logo`.
 //   shot        - OPTIONAL path to a product screenshot (webp, 16:10) for that simple plate
 //   logo        - path to the project's logo (a small raster; never shown above 96px)
@@ -35,15 +35,34 @@ export const projects = [
     name_en: "arabi.tools",
     tagline_ar: "أدوات مجانية لتفريغ الصوت واستخراج النص من ملفات PDF والصور وتشكيل النص العربي، دون حساب أو تثبيت.",
     tagline_en: "Free tools for audio transcription, extracting text from PDFs and images, and Arabic diacritization, with no account and nothing to install.",
+    motif: "tools",
+    logo: "/assets/logos/arabitools.png",
+    links: [
+      { type: "website", url: "https://arabi.tools" },
+      { type: "github",  url: "https://github.com/ieasybooks/arabi.tools" },
+    ],
+    tutorials: [
+      { id: "kQUc04Xtu7k", title_ar: "الموقع", title_en: "The website" },
+    ],
+  },
+  {
+    slug: "tashkeel",
+    color: "#57534e",
+    date: "2026-10",
+    meta_ar: "أكتوبر ٢٠٢٦",
+    meta_en: "October 2026",
+    name_ar: "تشكيل",
+    name_en: "Tashkeel",
+    tagline_ar: "أداة لإضافة التشكيل إلى نص عربي أو مستند TXT أو DOCX، باستخدام شكِّلها أو CATT.",
+    tagline_en: "A tool to add diacritics to Arabic text or a TXT or DOCX document, using شكِّلها or CATT.",
     motif: "diacritize",
     logo: "/assets/logos/arabitools.png",
     links: [
-      { type: "website",  url: "https://arabi.tools" },
-      { type: "github",   url: "https://github.com/ieasybooks/arabi.tools" },
-      { type: "tashkeel", url: "https://github.com/ieasybooks/tashkeel-rs" },
+      { type: "browser", url: "https://arabi.tools/diacritize" },
+      { type: "cli",     url: "https://github.com/ieasybooks/tashkeel-rs" },
     ],
     tutorials: [
-      { id: "aZXJrgYlHII", title_ar: "تشكيل النص العربي", title_en: "Arabic diacritization" },
+      { id: "aZXJrgYlHII", title_ar: "الاستخدام من المتصفح", title_en: "Using it in the browser" },
     ],
   },
   {
@@ -63,8 +82,8 @@ export const projects = [
       { type: "android", url: "https://play.google.com/store/apps/details?id=com.ieasybooks.aljam3" },
       { type: "ios",     url: "https://apps.apple.com/uz/app/aljam3-library/id6749810366" },
       { type: "huawei",  url: "https://appgallery.huawei.com/app/C115078047" },
-      { type: "windows", url: "https://github.com/ieasybooks/aljam3-desktop/releases/latest" },
-      { type: "macos",   url: "https://github.com/ieasybooks/aljam3-desktop/releases/latest" },
+      { type: "windows", url: "https://aljam3.com/desktop/windows" },
+      { type: "macos",   url: "https://aljam3.com/desktop/macos" },
       { type: "mcp",     url: "https://aljam3.com/mcp" },
       { type: "github",  url: "https://github.com/ieasybooks/aljam3-web-app" },
     ],

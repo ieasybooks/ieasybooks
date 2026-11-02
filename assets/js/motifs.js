@@ -704,9 +704,9 @@ const library = {
 
 /* ===================================================== the registry */
 /* ===================================================== 7. DIACRITIZE ==
-   arabi.tools: a pasted line gains its diacritics word by word as the chosen model reads it; then
-   the output formats. The hadith and its marks are the site's own: the text and the شكِّلها result
-   shown in its diacritization film (ieasybooks/launches, arabi-tools-tashkeel). */
+   Tashkeel: one line, set large, takes its diacritics word by word as the chosen model reads it;
+   then the formats it writes. The hadith and its marks are the tool's own: the text and the
+   شكِّلها result shown in its diacritization film (ieasybooks/launches, arabi-tools-tashkeel). */
 const DZ_TEXT = "من سلك طريقا يلتمس فيه علما سهل الله له به طريقا إلى الجنة";
 const DZ_MARKED = "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إلَى الْجَنَّةِ";
 const DZ_MODELS = ["شكِّلها", "CATT"];
@@ -734,14 +734,12 @@ const diacritize = {
           return { w: h("span", { class: "m-dz__w" }, d, b), d, b };
         });
         const models = DZ_MODELS.map((m) => h("span", { class: "m-dz__model" }, m));
-        const items = L.out.map((f) => h("span", { class: "m-dz__f" }, f));
-        const fmts = h("div", { class: "m-dz__fmts" }, h("span", { class: "m-dz__fl" }, L.fl), h("span", { class: "m-dz__fbox" }, items));
-        el.append(h("div", { class: "m-dz__flow" },
-          h("div", { class: "m-dz__src" }, h("p", { class: "m-dz__in", dir: "rtl", lang: "ar" }, DZ_TEXT)),
-          h("div", { class: "m-dz__run" }, h("span", { class: "m-dz__down" }), models),
-          h("div", { class: "m-dz__card" },
-            h("p", { class: "m-dz__out", dir: "rtl", lang: "ar" }, ws.flatMap((x, i) => (i ? [" ", x.w] : [x.w]))),
-            h("p", { class: "m-dz__cite" }, L.cite)),
+        const fmts = h("div", { class: "m-dz__fmts" }, h("span", { class: "m-dz__fl" }, L.fl),
+          h("span", { class: "m-dz__fbox" }, L.out.map((f) => h("span", { class: "m-dz__f" }, f))));
+        el.append(h("div", { class: "m-dz__flow m-fit" },
+          h("div", { class: "m-dz__models" }, models),
+          h("p", { class: "m-dz__out", dir: "rtl", lang: "ar" }, ws.flatMap((x, i) => (i ? [" ", x.w] : [x.w]))),
+          h("p", { class: "m-dz__cite" }, L.cite),
           fmts));
         Object.assign(st, { ws, model: models[0], fmts });
       },
@@ -765,7 +763,68 @@ const diacritize = {
   },
 };
 
-export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize };
+/* ========================================================== 8. TOOLS ==
+   arabi.tools: the site's three tools as the site lists them, in its own words. Each converts in
+   turn, its inputs passing over to the formats it gives back; each opens its page on the site. */
+const AT_TOOLS = [
+  { path: "transcribe", in: ["MP3", "M4A"], out: ["TXT", "SRT"],
+    ar: { name: "تفريغ الصوت", text: "حوّل تسجيلات MP3 وM4A إلى نص مكتوب وملف ترجمة SRT." },
+    en: { name: "Audio transcription", text: "Turn MP3 and M4A recordings into text and SRT subtitles." } },
+  { path: "ocr", in: ["PDF", "JPG", "PNG"], out: ["TXT", "DOCX", "JSON"],
+    ar: { name: "استخراج النص من الصور", text: "حوّل ملفات PDF وصور JPG وPNG إلى نص قابل للتحرير، بأي لغة، ونزّله بصيغ TXT وDOCX وJSON." },
+    en: { name: "Text recognition (OCR)", text: "Turn PDFs and JPG or PNG images in any language into editable text, with TXT, DOCX and JSON downloads." } },
+  { path: "diacritize", in: { ar: ["نص", "TXT", "DOCX"], en: ["Text", "TXT", "DOCX"] }, out: { ar: ["نص مشكول", "TXT", "DOCX"], en: ["Diacritized text", "TXT", "DOCX"] },
+    ar: { name: "تشكيل النص العربي", text: "أضف التشكيل إلى نص عربي أو مستند TXT أو DOCX، باستخدام شكِّلها أو CATT." },
+    en: { name: "Arabic diacritization", text: "Add diacritics to Arabic text or a TXT or DOCX document using شكِّلها or CATT." } },
+];
+const AT = {
+  ar: { head: "أدوات مجانية للغة العربية", promises: ["مجانية بلا حساب", "تُحذف ملفاتك تلقائيًا", "للعربية أولًا"] },
+  en: { head: "Free tools for the Arabic language", promises: ["Free, no account", "Files deleted automatically", "Arabic first"] },
+};
+
+const tools = {
+  beats: 3,
+  size: { wide: PLATE, narrow: NARROW },
+  create(ctx) {
+    const el = h("div", { class: "m m-at" });
+    const st = {};
+    return {
+      el,
+      mount() {
+        el.textContent = "";
+        const L = AT[ctx.locale], pick = (v) => (Array.isArray(v) ? v : v[ctx.locale]);
+        const chips = (list, cls) => list.map((f) => h("span", { class: `m-at__f ${cls}` }, f));
+        const rows = AT_TOOLS.map((t) => {
+          const ins = chips(pick(t.in), "m-at__f--in"), outs = chips(pick(t.out), "m-at__f--out");
+          const arrow = h("span", { class: "m-at__arrow", "aria-hidden": "true" });
+          const a = h("a", { class: "m-at__tool", href: `https://arabi.tools/${t.path}`, target: "_blank", rel: "noopener noreferrer" },
+            h("span", { class: "m-at__name" }, t[ctx.locale].name),
+            h("span", { class: "m-at__text" }, t[ctx.locale].text),
+            h("span", { class: "m-at__formats", dir: ctx.rtl ? "rtl" : "ltr" }, ins, arrow, outs));
+          return { a, ins, outs, arrow };
+        });
+        el.append(h("div", { class: "m-at__flow m-fit" },
+          h("div", { class: "m-at__head" },
+            h("img", { class: "m-at__logo", src: "/assets/logos/arabitools.svg", alt: "", width: "48", height: "48" }),
+            h("p", { class: "m-at__title" }, L.head)),
+          h("p", { class: "m-at__promises" }, L.promises.join(" · ")),
+          h("ol", { class: "m-at__tools" }, rows.map((r) => h("li", {}, r.a)))));
+        Object.assign(st, { rows });
+      },
+      update(p) {
+        // a beat for each tool: its inputs settle, the arrow draws, and the formats it gives back light
+        st.rows.forEach((r, i) => {
+          const a = 0.04 + i * 0.31;
+          r.ins.forEach((c) => setVar(c, "--on", easeOut(seg(p, a, a + 0.08)).toFixed(3)));
+          setVar(r.arrow, "--draw", easeOut(seg(p, a + 0.06, a + 0.16)).toFixed(3));
+          r.outs.forEach((c, j) => setVar(c, "--on", easeOut(seg(p, a + 0.14 + j * 0.03, a + 0.22 + j * 0.03)).toFixed(3)));
+        });
+      },
+    };
+  },
+};
+
+export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools };
 
 /* A project without a motif: its screenshot as a plate, otherwise its logo on a small tile. */
 export function fallbackPlate(project, locale) {
