@@ -1,6 +1,6 @@
 # ieasybooks
 
-The landing page for [iEasyBooks](https://ieasybooks.com), a non-profit initiative making Islamic knowledge easier to reach.
+The landing page for [EasyBooks](https://ieasybooks.com), a non-profit initiative making Islamic knowledge easier to reach.
 
 ## Running locally
 

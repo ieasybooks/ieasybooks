@@ -1,6 +1,6 @@
 {
-  "name": "iEasyBooks",
-  "short_name": "iEasyBooks",
+  "name": "EasyBooks",
+  "short_name": "EasyBooks",
   "description": "We build Islamic apps that make access to Islamic sciences easy",
   "start_url": "/ar/",
   "display": "standalone",

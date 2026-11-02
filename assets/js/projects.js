@@ -1,4 +1,4 @@
-// Single source of truth for the projects on the iEasyBooks landing page.
+// Single source of truth for the projects on the EasyBooks landing page.
 // Each entry becomes one spread of "the book" (a text page and a plate), in this order, on both
 // /ar/ and /en/. The newest project comes first.
 //
