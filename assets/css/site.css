@@ -773,6 +773,53 @@ html.lay-pocket { height:100%; overflow:hidden; }
 .is-narrow .m-ml__opt { padding:6px 9px; font-size:12px; }
 .is-narrow .m-ml__time { font-size:11px; }
 
+/* 10. Shawared: a bayt that lights word by word as it is recited. Saffron, the app's own, marks only what is active. */
+.m-sh { --saffron:#b8650c; --rest:#b9b0a2; }
+/* the play button sits on the plate's edge: let it grow on hover and show its focus ring */
+.m-sh--listen { overflow:visible; }
+.m-sh__flow { inset-inline:0; top:0; display:flex; flex-direction:column; }
+.m-sh__flow > * { position:relative; }
+.m-sh__who { color:var(--t3); font:400 calc(16px * var(--lift))/1.5 var(--f-ui); }
+.m-sh__poet { color:var(--t2); font-weight:500; }
+/* a half has a saffron wash while it is being recited; its words rest in lead grey, are ink once heard,
+   and the word being recited is marked */
+.m-sh__half { --pad:10px; display:block; width:calc(var(--measure) + 2 * var(--pad)); padding-inline:var(--pad); border-radius:8px; color:var(--rest); background:color-mix(in srgb,var(--saffron) calc(var(--wash,0)*13%),transparent); text-align:justify; text-align-last:justify; white-space:nowrap; }
+.m-sh__w { --hl:var(--now,0); position:relative; border-radius:4px; color:color-mix(in srgb,var(--t1) calc(var(--read,0)*100%),var(--rest)); background:color-mix(in srgb,var(--saffron) calc(var(--hl)*22%),transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--saffron) calc(var(--hl)*22%),transparent); }
+.m-sh__w--gloss { --hl:max(var(--now,0),var(--pick,0)); }
+.m-sh__w--gloss::after { content:""; position:absolute; left:50%; bottom:-.1em; width:.2em; height:.2em; background:var(--saffron); transform:translateX(-50%) rotate(45deg) scale(var(--dia,0)); }
+
+/* A: the bayt, its progress line, and the meaning of its hard word */
+.m-sh--listen .m-sh__bayt { display:flex; flex-direction:column; gap:4px; margin-top:calc(26px / var(--lift)); font:400 38px/2 var(--f-book); }
+.m-sh--listen .m-sh__half:last-child { align-self:flex-end; }
+.m-sh__player { display:flex; align-items:center; gap:16px; margin-top:calc(26px / var(--lift)); }
+.m-sh__play { position:relative; flex:none; width:calc(40px + 12px * var(--lift)); aspect-ratio:1; border:0; border-radius:50%; background:var(--ch); cursor:pointer; transition:transform .15s var(--ease); }
+.m-sh__play:hover { transform:scale(1.06); }
+.m-sh__play:focus-visible { outline:2px solid var(--ch); outline-offset:3px; border-radius:50%; }
+.m-sh__play::before { content:""; position:absolute; inset:0; margin:auto; width:0; height:0; translate:2px 0; border-style:solid; border-width:9px 0 9px 15px; border-color:transparent transparent transparent var(--on); }
+:root:lang(ar) .m-sh__play::before { scale:-1 1; translate:-2px 0; }
+.m-sh__play.is-playing::before { width:14px; height:16px; translate:0; scale:1; border:solid var(--on); border-width:0 5px; }
+.m-sh__bar { position:relative; flex:1; height:4px; border-radius:2px; background:var(--raised); }
+.m-sh__fill { position:absolute; inset:0; border-radius:2px; background:var(--ch); transform:scaleX(var(--f,0)); transform-origin:var(--origin); }
+.m-sh__head { position:absolute; top:-4px; inset-inline-start:calc(var(--f,0) * 100% - 6px); width:12px; height:12px; border-radius:50%; background:var(--ch); }
+.m-sh__time { flex:none; color:var(--t3); font:400 calc(15px * var(--lift))/1 var(--f-ui); font-variant-numeric:tabular-nums; }
+.m-sh__card { margin-top:calc(30px / var(--lift)); padding:calc(18px / var(--lift)) 22px calc(20px / var(--lift)); border-radius:14px; background:var(--raised); }
+.m-sh__cardhead { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.m-sh__term { color:var(--t1); font:700 calc(28px * var(--lift))/1.6 var(--f-book); }
+.m-sh__label { color:var(--t3); font:400 calc(15px * var(--lift))/1.5 var(--f-ui); }
+.m-sh__meaning { margin-top:6px; color:var(--t1); font:400 calc(19px * var(--lift))/1.8 var(--f-ui); }
+.is-narrow .m-sh__who { font-size:13px; }
+.is-narrow.m-sh--listen .m-sh__bayt,.is-narrow .m-sh--listen .m-sh__bayt { margin-top:14px; font-size:21px; }
+.is-narrow .m-sh__half { --pad:6px; }
+.is-narrow .m-sh__player { gap:10px; margin-top:16px; }
+.is-narrow .m-sh__play { width:42px; }
+.is-narrow .m-sh__play::before { border-width:7px 0 7px 12px; }
+.is-narrow .m-sh__play.is-playing::before { width:11px; height:13px; border-width:0 4px; }
+.is-narrow .m-sh__time { font-size:12px; }
+.is-narrow .m-sh__card { margin-top:18px; padding:12px 14px 14px; border-radius:10px; }
+.is-narrow .m-sh__term { font-size:20px; }
+.is-narrow .m-sh__label { font-size:12px; }
+.is-narrow .m-sh__meaning { margin-top:2px; font-size:14px; line-height:1.7; }
+
 /* fallback plate: a screenshot, or the logo on a small tile */
 .m-fb { display:grid; place-items:center; }
 .m-fb--shot { display:block; border-radius:12px; box-shadow:inset 0 0 0 1px var(--line); }
