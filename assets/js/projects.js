@@ -25,6 +25,26 @@
 
 export const projects = [
   {
+    slug: "musicless",
+    color: "#1f1d1a",
+    date: "2026-11",
+    meta_ar: "نوفمبر ٢٠٢٦",
+    meta_en: "November 2026",
+    name_ar: "بلا موسيقى",
+    name_en: "Musicless",
+    tagline_ar: "إضافة مجانية للمتصفح تُزيل معظم الموسيقى من فيديوهات YouTube وتُبقي الأصوات البشرية، لتساعدك على تجنّب الاستماع إلى الموسيقى، وعلى سماع كل كلمة بوضوح. فعّلها مرة ثم شاهد كالمعتاد، وكل شيء يعمل على حاسوبك.",
+    tagline_en: "A free browser extension that removes most of the music from YouTube videos and keeps the voices, to help you avoid listening to music and hear every word clearly. Turn it on once, then watch as usual. Everything runs on your computer.",
+    motif: "unmix",
+    logo: "/assets/logos/musicless.svg",
+    links: [
+      { type: "website", url: "https://musicless.ieasybooks.com" },
+      { type: "chrome",  url: "https://chromewebstore.google.com/detail/musicless/fllcnhpmoanojfbncfpdencchjlgphco" },
+      { type: "firefox", url: "https://addons.mozilla.org/firefox/addon/musicless/" },
+      { type: "github",  url: "https://github.com/ieasybooks/musicless" },
+    ],
+    tutorials: [],
+  },
+  {
     slug: "arabitools",
     color: "#1f5c49",
     date: "2026-10",
