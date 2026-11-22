@@ -25,6 +25,27 @@
 
 export const projects = [
   {
+    slug: "shawared",
+    color: "#1a2036",
+    date: "2026-11",
+    meta_ar: "نوفمبر ٢٠٢٦",
+    meta_en: "November 2026",
+    name_ar: "شوارد",
+    name_en: "Shawared",
+    tagline_ar: "مكتبة للشعر العربي كما يُلقى: تسمع القصيدة بصوت مُلقيها، وتقرأ أبياتها وهي تُلقى، وتفهم معانيها بالشرح ومعاني الكلمات، مجانًا بلا إعلانات ولا حساب.",
+    tagline_en: "A library of Arabic poetry as it is recited: hear each poem in its reciter’s voice, read its verses as they are recited, and understand them through explanations and word meanings. Free, with no ads and no account.",
+    motif: "listen",
+    logo: "/assets/logos/shawared.svg",
+    links: [
+      { type: "website", url: "https://shawared.com" },
+      { type: "ios",     url: "https://apps.apple.com/app/id6836290037" },
+      { type: "android", url: "https://play.google.com/store/apps/details?id=com.shawared.app" },
+      { type: "huawei",  url: "https://appgallery.huawei.com/app/C119866441" },
+      { type: "github",  url: "https://github.com/ieasybooks/shawared" },
+    ],
+    tutorials: [],
+  },
+  {
     slug: "musicless",
     color: "#1f1d1a",
     date: "2026-11",

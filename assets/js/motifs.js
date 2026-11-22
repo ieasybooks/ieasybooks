@@ -1021,8 +1021,142 @@ const unmix = {
   },
 };
 
+/* ====================================================== 10. SHAWARED ==
+   Shawared: Arabic poetry as it is recited. The bayt is the one in its launch film, the first of «عيون المها»
+   by Ali ibn al-Jahm in Osama Al-Waaedh's voice; its text, kashida and word meaning are the app's own
+   (ieasybooks/shawared, content/poems/uyun-al-maha), its word timings the film's alignment of the same
+   recording. As in the app, a half has a saffron wash while it is recited, both halves are set to one
+   measure, and saffron marks only what is active. */
+const SH_BAYT = ["عُيونُ المَها بَينَ الرُّصافَةِ وَالجِسرِ", "جَلَبنَ الهَوى مِن حَيثُ أَدري وَلا أَدري"];
+// Each word's [start, end] in the recording, in seconds, half by half.
+const SH_WORDS = [
+  [[0.62, 1.36], [1.52, 2.28], [2.56, 2.96], [2.98, 4.62], [4.82, 5.58]],
+  [[5.82, 6.58], [6.72, 7.5], [7.82, 7.96], [8.06, 8.52], [8.62, 9.18], [9.68, 10.02], [10.04, 10.68]],
+];
+// The bayt as heard: seconds 0.40–10.90 of the recording.
+const SH_CLIP = { src: "/assets/audio/shawared-uyun-al-maha-1.m4a", from: 0.4, length: 10.5 };
+// The app's own kashida for the two halves ([offset, tatweels]), set for the poem's measure in em.
+const SH_MEASURE = 12.628;
+const SH_KASHIDA = [[[16, 5], [29, 6]], []];
+function withKashida(text, plan) {
+  let out = "", last = 0;
+  for (const [at, n] of plan) { out += text.slice(last, at) + "ـ".repeat(n); last = at; }
+  return out + text.slice(last);
+}
+const SH = {
+  ar: { poet: "عَليّ بن الجَهم", by: "بصوت أسامة الواعظ", listen: "استمع إلى البيت", pause: "أوقف الاستماع",
+    word: "معنى الكلمة", meaning: "جمع مهاة، وهي البقرة الوحشية، تُشبَّه بعيونها عيون الحسان لسعتها وسوادها." },
+  en: { poet: "Ali ibn al-Jahm", by: "recited by Osama Al-Waaedh", listen: "Listen to the bayt", pause: "Stop listening",
+    word: "Word meaning", meaning: "Maha: oryx, the wild cow of the desert; its large dark eyes are the poets’ image for a woman’s." },
+};
+const shClock = (sec, locale) => timecode(`${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`, locale);
+
+// A half: its words, one span each, drawn out with the app's kashida and spread to the poem's measure.
+function shHalf(text, plan, gloss = -1) {
+  const ws = words(withKashida(text, plan)).map((w, i) => h("span", { class: i === gloss ? "m-sh__w m-sh__w--gloss" : "m-sh__w" }, w));
+  const el = h("span", { class: "m-sh__half", dir: "rtl", lang: "ar" }, ws.flatMap((w, i) => (i ? [" ", w] : [w])));
+  return { el, ws };
+}
+// The bayt at second t, word by word: a word turns from lead grey to ink as it is recited and stays
+// read; the word being recited is marked in saffron until the next one starts; its half has the wash.
+function shLight(halves, t) {
+  const all = SH_WORDS.flat();
+  let k = 0;
+  halves.forEach((x, i) => {
+    const a = SH_WORDS[i][0][0], b = SH_WORDS[i].at(-1)[1];
+    setVar(x.el, "--wash", (clamp01((t - a + 0.25) / 0.3) * (1 - clamp01((t - b) / 0.3))).toFixed(3));
+    x.ws.forEach((w) => {
+      const s = all[k][0], next = all[k + 1]?.[0] ?? all[k][1] + 0.3;
+      k++;
+      setVar(w, "--read", clamp01((t - s + 0.12) / 0.2).toFixed(3));
+      setVar(w, "--now", (clamp01((t - s + 0.08) / 0.12) * (1 - clamp01((t - next + 0.08) / 0.12))).toFixed(3));
+    });
+  });
+}
+
+/* The bayt lights up. Beat 1 hears it word by word along its progress line; beat 2 marks its hard
+   word with the app's diamond; beat 3 opens the word's meaning. The play button plays the bayt
+   itself, lighting it at the recording's own pace. */
+const listen = {
+  beats: 3,
+  size: { wide: PLATE, narrow: NARROW },
+  create(ctx) {
+    const L = SH[ctx.locale];
+    const el = h("div", { class: "m m-sh m-sh--listen", style: `--measure:${SH_MEASURE}em` });
+    const st = { p: 0, audio: null, playing: false, heard: false, raf: 0, ct: -1, at: 0 };
+    // The recording's clock, carried between the element's own time updates so the words keep pace.
+    const playhead = () => {
+      const ct = st.audio.currentTime, now = performance.now();
+      if (ct !== st.ct) { st.ct = ct; st.at = now; }
+      return SH_CLIP.from + ct + Math.min(0.25, (now - st.at) / 1000);
+    };
+    const render = () => {
+      const p = st.p;
+      // once heard through, the bayt stays read
+      const done = SH_CLIP.from + SH_CLIP.length + 0.3;
+      const t = st.playing ? playhead() : st.heard ? done : lerp(0, done, seg(p, 0.02, 0.44));
+      shLight(st.halves, t);
+      const f = clamp01((t - SH_CLIP.from) / SH_CLIP.length);
+      setVar(st.bar, "--f", f.toFixed(4));
+      setText(st.now, shClock(Math.max(0, t - SH_CLIP.from), ctx.locale));
+      // beat 2: the diamond comes under the hard word; beat 3: the word is picked and its meaning opens
+      setVar(st.gloss, "--dia", easeOut(seg(p, 0.5, 0.6)).toFixed(3));
+      const k = easeOut(seg(p, 0.66, 0.84));
+      setVar(st.gloss, "--pick", k.toFixed(3));
+      ink(st.card, k, 10);
+      setVis(st.card, k > 0);
+    };
+    const tick = () => { render(); if (st.playing) st.raf = requestAnimationFrame(tick); };
+    const stop = (e) => {
+      if (e?.type === "ended") st.heard = true;
+      st.playing = false; cancelAnimationFrame(st.raf);
+      st.btn.classList.remove("is-playing"); st.btn.setAttribute("aria-label", L.listen);
+      render();
+    };
+    const toggle = () => {
+      if (!st.audio) {
+        st.audio = new Audio(SH_CLIP.src);
+        st.audio.addEventListener("ended", stop);
+        st.audio.addEventListener("pause", (e) => { if (st.playing) stop(e); });
+        addEventListener("pagehide", () => st.audio.pause());
+      }
+      if (st.playing) { st.audio.pause(); return; }
+      st.audio.currentTime = 0;
+      st.ct = -1;
+      st.audio.play().then(() => {
+        st.playing = true;
+        st.btn.classList.add("is-playing"); st.btn.setAttribute("aria-label", L.pause);
+        tick();
+      }).catch(() => {});
+    };
+    return {
+      el,
+      mount() {
+        el.textContent = "";
+        const sadr = shHalf(SH_BAYT[0], SH_KASHIDA[0], 1), ajuz = shHalf(SH_BAYT[1], SH_KASHIDA[1]);
+        const btn = h("button", { class: "m-sh__play", type: "button", "aria-label": st.playing ? L.pause : L.listen });
+        btn.addEventListener("click", toggle);
+        const bar = h("span", { class: "m-sh__bar", "aria-hidden": "true" }, h("span", { class: "m-sh__fill" }), h("span", { class: "m-sh__head" }));
+        const now = h("span", { class: "m-sh__now" });
+        const card = h("div", { class: "m-sh__card", "aria-hidden": "true" },
+          h("p", { class: "m-sh__cardhead" }, h("span", { class: "m-sh__term", dir: "rtl", lang: "ar" }, "المَها"), h("span", { class: "m-sh__label" }, L.word)),
+          h("p", { class: "m-sh__meaning", dir: ctx.rtl ? "rtl" : "ltr" }, L.meaning));
+        el.append(h("div", { class: "m-sh__flow m-fit" },
+          h("p", { class: "m-sh__who", "aria-hidden": "true" }, h("span", { class: "m-sh__poet" }, L.poet), " · ", L.by),
+          h("p", { class: "m-sh__bayt", dir: "rtl", "aria-hidden": "true" }, sadr.el, ajuz.el),
+          h("div", { class: "m-sh__player" }, btn, bar,
+            h("span", { class: "m-sh__time", "aria-hidden": "true" }, now, " / ", shClock(SH_CLIP.length, ctx.locale))),
+          card));
+        Object.assign(st, { halves: [sadr, ajuz], gloss: sadr.ws[1], btn, bar, now, card });
+        if (st.playing) btn.classList.add("is-playing");
+      },
+      update(p) { st.p = p; render(); },
+    };
+  },
+};
+
 /* ===================================================== the registry */
-export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools, unmix };
+export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools, unmix, listen };
 
 /* A project without a motif: its screenshot as a plate, otherwise its logo on a small tile. */
 export function fallbackPlate(project, locale) {
