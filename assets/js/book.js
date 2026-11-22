@@ -1,6 +1,6 @@
 // Scroll-scrubbed book. Hard boards swing on the spine in 3D; paper leaves fold like paper and can be dragged.
 import { projects } from "./projects.js?v=2";
-import { motifs, fallbackPlate, fmt, arText, PLATE, NARROW, h, seg, lerp, clamp01, easeOut, easeInOut, setT, setO, setC } from "./motifs.js?v=2";
+import { motifs, fallbackPlate, fmt, arText, PLATE, NARROW, h, seg, lerp, clamp01, easeInOut, setT, setO, setC } from "./motifs.js?v=2";
 import { initLocalePersistence } from "./i18n.js?v=2";
 
 const root = document.documentElement;
@@ -455,7 +455,7 @@ const turnPath = (e) => ({ x: PW * Math.cos(Math.PI * e), y: PH - .57 * PH * e *
 // A scrolled turn keeps the corner it started from until the book is at rest again: scrolling on
 // lifts the unread leaf by its tail corner, scrolling back lifts the read leaf by its own.
 const scrolled = { ti: -1, dir: 1, y: 0 };
-const scrollTurn = (a, dir, s) => ({ kind: "turn", a, dir, top: false, s, P: turnPath(dir > 0 ? s : 1 - s) });
+const scrollTurn = (a, dir, s) => ({ kind: "turn", a, dir, top: false, s, P: within(constrain(turnPath(dir > 0 ? s : 1 - s), false), false) });
 
 // Paper can't stretch: the corner stays within reach of both ends of the spine.
 function constrain(P, top) {
@@ -497,6 +497,20 @@ function fold(P, top) {
   };
 }
 
+// A leaf the book carries over stands up as it crosses, as a page turning on its spine does seen from
+// above. Once the crease has passed the far corner, over the next fifth of a page the corner comes down
+// to where that corner, turned over with it, no longer swings past the head (or tail). k: how far the
+// book has taken the corner from a hand.
+function within(P, top, k = 1) {
+  const far = { x: PW, y: top ? PH : 0 }, edge = top ? 0 : PH;
+  const w = k * hermite(clamp01((Math.hypot(P.x - far.x, P.y - far.y) - PH) / (PW / 5)), 0);
+  const out = (y) => { const F = fold({ x: P.x, y }, top); return F && F.sd(far) > 0 ? (top ? F.refl(far).y - PH : -F.refl(far).y) : 0; };
+  if (w <= 0 || out(P.y) <= .5) return P;
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 12; i++) { const m = (lo + hi) / 2; if (out(lerp(P.y, edge, m)) > .5) lo = m; else hi = m; }
+  return { x: P.x, y: lerp(P.y, edge, w * hi) };
+}
+
 const f2 = (v) => v.toFixed(2), f5 = (v) => v.toFixed(5);
 const poly = (pts) => `polygon(${pts.map(p => `${f2(p.x)}px ${f2(p.y)}px`).join(", ")})`;
 const ink = (a) => `rgba(30,17,7,${Math.max(0, a).toFixed(3)})`;
@@ -507,6 +521,17 @@ function grad(f, stops, w = PW, hh = PH) {
   const L = Math.abs(w * gx) + Math.abs(hh * gy);
   const off = d0 + w / 2 * gx + hh / 2 * gy - L / 2;
   return `linear-gradient(${f2(Math.atan2(gx, -gy) / DEG)}deg, ${stops.map(([d, c]) => `${c} ${f2(d - off)}px`).join(", ")})`;
+}
+// A shadow of strength a that thins as it spreads over w, with no edge where a straight ramp would stop.
+const soft = (a, w) => [0, .1, .25, .45, .7, 1].map((x) => [w * x, ink(a * (1 - x) ** 2)]);
+// The paper rolls over the crease: dark where it turns away, brightest on top of the roll (r from the
+// crease), plain paper again by flat, and a shade darker towards the far edge.
+function roll(dark, hi, r, flat, far, farInk) {
+  const over = [0, .1, .25, .5, 1].map((u) => {
+    const b = Math.sqrt(1 - (1 - u) ** 2);    // how squarely the roll faces up
+    return [r * u, b < .5 ? ink(dark * (1 - 2 * b)) : light(hi * (2 * b - 1))];
+  });
+  return [...over, [lerp(r, flat, .4), light(.3 * hi)], [flat, light(0)], [far, ink(farInk)]];
 }
 
 /* ------------------------------------------------------------------- drawing */
@@ -617,10 +642,10 @@ function turnSpec(st, spec) {
   // Fully over, the leaf has no front left on its first side (and no flap at the very start).
   if (F.keep.length < 3) { if (under) spec.set(under, { z: 3 }); if (back) spec.set(back, { z: 3 }); return {}; }
   if (F.flap.length < 3) { if (front) spec.set(front, { z: 3 }); return {}; }
-  if (under) spec.set(under, { z: 3, shade: grad((e) => F.sd(onFront(e)), [[0, ink(.3 * lam + .08)], [24 + 150 * lam, ink(0)]]) });
+  if (under) spec.set(under, { z: 3, shade: grad((e) => F.sd(onFront(e)), soft(.3 * lam + .08, 24 + 150 * lam)) });
   if (front) spec.set(front, {
     z: 4, clip: poly(F.keep.map((q) => S2E(s, L2S(s, q)))),
-    shade: grad((e) => -F.sd(onFront(e)), [[0, ink(.2 * lam + .05)], [18 + 80 * lam, ink(0)]]),
+    shade: grad((e) => -F.sd(onFront(e)), soft(.2 * lam + .05, 18 + 80 * lam)),
   });
   if (back) {
     // The back of the leaf: its own page, turned over the crease. Two reflections make a rotation.
@@ -630,9 +655,7 @@ function turnSpec(st, spec) {
       z: 7,
       transform: `matrix(${f5(mx.x - m0.x)}, ${f5(mx.y - m0.y)}, ${f5(my.x - m0.x)}, ${f5(my.y - m0.y)}, ${f2(m0.x - o.x)}, ${f2(m0.y - o.y)})`,
       clip: poly(F.flap.map((q) => S2E(-s, L2S(s, { x: -q.x, y: q.y })))),
-      shade: grad((e) => F.sd(onBack(e)), [
-        [0, ink(.3 * lam + .04)], [5 + 6 * lam, light(0)], [16 + 34 * lam, light(.34 * lam)],
-        [60 + 120 * lam, light(0)], [PW * 1.2, ink(.14 * lam)]]),
+      shade: grad((e) => F.sd(onBack(e)), roll(.3 * lam + .04, .34 * lam, 16 + 34 * lam, 60 + 120 * lam, PW * 1.2, .14 * lam)),
     });
   }
   return { flap: F.flap.map((q) => L2S(s, F.refl(q))), lam };
@@ -740,6 +763,26 @@ function play(ms, frame, done, drawFn = draw) {
   hands.raf = requestAnimationFrame(tick);
 }
 
+// An ease from 0 to 1 that sets off with slope m0 and arrives with slope m1.
+const hermite = (u, m0, m1 = 0) => u * u * (3 - 2 * u) + m0 * u * (1 - u) ** 2 - m1 * u * u * (1 - u);
+// A leaf given a push lifts at once, slows as it stands up, then falls and settles on a cushion of air.
+const pushed = (k) => k < .42 ? .5 * hermite(k / .42, 1.68, .59) : .5 + .5 * hermite((k - .42) / .58, .81);
+// A motion a hand lets go of sets off at the hand's speed v (along its way, per ms) and comes to rest.
+// Leaving at more than 3 × its mean speed it would overshoot, so a faster hand ends it sooner.
+function thrown(dist, v, ms) {
+  if (dist < 1e-6) return [ms, 0];
+  if (v * ms > 3 * dist) ms = Math.max(160, 3 * dist / v);
+  return [ms, Math.max(-1, Math.min(3, v * ms / dist))];
+}
+// The hand's speed as it lets go, over its last tenth of a second (px per ms). A hand that stopped
+// moving before it let go has none left to give.
+function handSpeed(track, e) {
+  const end = track[track.length - 1];
+  if (e.timeStamp - end.t > 50) return { x: 0, y: 0 };
+  const from = track.find((q) => end.t - q.t <= 100) || end, dt = Math.max(8, end.t - from.t);
+  return { x: (end.x - from.x) / dt, y: (end.y - from.y) / dt };
+}
+
 // Hand the book back to the scroll position that shows what the hand left open.
 function handBack(top) {
   if (Math.abs(scrollPos() - top) < 1) { hands.mode = ""; render(); return; }
@@ -750,13 +793,17 @@ function handBack(top) {
 function settle(y, st) { draw(st); handBack(Math.round(y)); }
 const restY = (i, forward) => forward ? units[i].land + 1 : units[i].land + units[i].dwell - 2;
 
-// Finish a turn from wherever the corner is: over to the other side, or back down.
-function finishTurn(st, done) {
+// Finish a turn from wherever the corner is: over to the other side, or back down. A hand that lets go
+// sends the corner on at its own speed v (leaf units per ms); a click gives it a push.
+function finishTurn(st, done, v) {
   const from = { ...st.P }, to = { x: done ? -PW : PW, y: st.top ? 0 : PH };
   const dist = Math.hypot(to.x - from.x, to.y - from.y), arc = (st.top ? -1 : 1) * LIFT * PH * .7 * dist / (2 * PW);
-  play(Math.min(760, 240 + dist * .4), (k) => {
-    const e = easeOut(k);
-    return { ...st, P: { x: lerp(from.x, to.x, e), y: lerp(from.y, to.y, e) - arc * Math.sin(Math.PI * e) } };
+  const ms0 = Math.min(760, 240 + dist * .4);
+  const [ms, m] = v ? thrown(dist, (v.x * (to.x - from.x) + v.y * (to.y - from.y)) / Math.max(dist, 1e-6), ms0) : [ms0, 1.5];
+  play(ms, (k) => {
+    const e = hermite(k, m);
+    const P = constrain({ x: lerp(from.x, to.x, e), y: lerp(from.y, to.y, e) - arc * Math.sin(Math.PI * e) }, st.top);
+    return { ...st, P: within(P, st.top, e) };
   }, () => {
     const i = (st.dir > 0) === done ? st.a + 1 : st.a, now = sceneAt(scrollPos());
     const was = now.kind === "rest" ? now.i : -1;
@@ -764,8 +811,10 @@ function finishTurn(st, done) {
     else settle(restY(i, i > was), { kind: "rest", i });
   });
 }
-function boardTo(kind, p0, p1) {
-  play(250 + 1150 * Math.abs(p1 - p0), (k) => ({ kind, p: lerp(p0, p1, easeInOut(k)) }), (st) => {
+// A board swings on its own weight, or at the speed v (of p, per ms) a hand let it go at.
+function boardTo(kind, p0, p1, v) {
+  const d = Math.abs(p1 - p0), [ms, m] = thrown(d, (v ?? 0) * Math.sign(p1 - p0), 250 + 1150 * d);
+  play(ms, (k) => ({ kind, p: lerp(p0, p1, v == null ? easeInOut(k) : hermite(k, m)) }), (st) => {
     if (kind === "cover") settle(p1 ? restY(0, true) : 0, p1 ? { kind: "rest", i: 0 } : st);
     else settle(p1 ? S.end : restY(LAST, false), p1 ? st : { kind: "rest", i: LAST });
   });
@@ -783,7 +832,7 @@ function step(dir) {
   if (st.kind === "cover" || st.kind === "close") { boardTo(st.kind, st.p, dir > 0 ? 1 : 0); return true; }
   if (st.kind === "turn") {
     const s0 = st.s, s1 = dir > 0 ? 1 : 0;
-    play(260 + 700 * Math.abs(s1 - s0), (t) => scrollTurn(st.a, st.dir, lerp(s0, s1, easeInOut(t))),
+    play(260 + 700 * Math.abs(s1 - s0), (t) => scrollTurn(st.a, st.dir, lerp(s0, s1, hermite(t, 1))),
       () => settle(restY(st.a + s1, dir > 0), { kind: "rest", i: st.a + s1 }));
     return true;
   }
@@ -791,7 +840,7 @@ function step(dir) {
   if (dir < 0 && st.i === 0) { boardTo("cover", 1, 0); return true; }
   if (peeking?.kind === "turn" && peeking.dir === dir) { finishTurn(peekScene(peeking, k), true); return true; }
   const a = dir > 0 ? st.i : st.i - 1, s0 = dir > 0 ? 0 : 1, s1 = 1 - s0;
-  play(950, (t) => scrollTurn(a, dir, lerp(s0, s1, easeInOut(t))),
+  play(950, (t) => scrollTurn(a, dir, lerp(s0, s1, pushed(t))),
     () => settle(restY(a + s1, dir > 0), { kind: "rest", i: a + s1 }));
   return true;
 }
@@ -851,7 +900,7 @@ stage.addEventListener("pointerdown", (e) => {
   if (e.target.closest("a, button, input, select, textarea, label, summary, [contenteditable]")) return;
   const g = grab(sheetPoint(e));
   if (!g) return;
-  press = { g, id: e.pointerId, x0: e.clientX, y0: e.clientY, track: [{ x: e.clientX, t: e.timeStamp }], st: null, dragging: false, touch: e.pointerType !== "mouse" };
+  press = { g, id: e.pointerId, x0: e.clientX, y0: e.clientY, track: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }], st: null, dragging: false, touch: e.pointerType !== "mouse" };
 });
 // Pages are held, not selected.
 stage.addEventListener("mousedown", (e) => { if (press) e.preventDefault(); });
@@ -873,7 +922,7 @@ addEventListener("pointermove", (e) => {
     root.classList.add("is-dragging");
     getSelection()?.removeAllRanges();
   }
-  press.track.push({ x: e.clientX, t: e.timeStamp });
+  press.track.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
   if (press.track.length > 6) press.track.shift();
   press.st = held(press.g, dx / S.k + (press.ox || 0), dy / S.k + (press.oy || 0));
   draw(press.st);
@@ -888,14 +937,13 @@ function release(e) {
     return;
   }
   suppressClick();
-  const first = track[0], last = track[track.length - 1];
-  const v = (last.x - first.x) / Math.max(8, last.t - first.t) / S.k;      // sheet units per ms
+  const hv = handSpeed(track, e), v = { x: hv.x / S.k, y: hv.y / S.k };   // sheet units per ms
   if (g.kind === "turn") {
-    const flick = -g.side * v;                                          // towards the other side
-    finishTurn(st, st.P.x < 0 ? flick > -.25 : flick > .45);
+    const flick = -g.side * v.x;                                        // towards the other side
+    finishTurn(st, st.P.x < 0 ? flick > -.25 : flick > .45, { x: g.side * v.x, y: v.y });
   } else {
-    const p = st.p - FWD * v * 220 / 1150;
-    boardTo(g.kind, st.p, p > .5 ? 1 : 0);
+    const p = st.p - FWD * v.x * 220 / 1150;
+    boardTo(g.kind, st.p, p > .5 ? 1 : 0, -FWD * v.x / 1150);
   }
 }
 addEventListener("pointerup", release);
@@ -973,7 +1021,7 @@ function pkScene(yl) {
 
 // The leaf frame runs from the spine (x 0) to the fore-edge (x W); a page box is the same, mirrored in RTL.
 const leaf = (e) => ({ x: RTL ? PK.W - e.x : e.x, y: e.y });
-const pkPath = (s) => ({ x: PK.W * Math.cos(Math.PI * s), y: PK.H - .5 * PK.H * s * (1 - s) ** 2.5 });
+const pkPath = (s) => pkWithin({ x: PK.W * Math.cos(Math.PI * s), y: PK.H - .5 * PK.H * s * (1 - s) ** 2.5 });
 const EAR = () => ({ x: PK.W - 24, y: PK.H - 18 });
 function pkFold(P) {
   const W = PK.W, H = PK.H, diag = Math.hypot(W, H);
@@ -988,7 +1036,17 @@ function pkFold(P) {
   const sd = (q) => (q.x - M.x) * n.x + (q.y - M.y) * n.y;
   const rect = [{ x: 0, y: 0 }, { x: W, y: 0 }, { x: W, y: H }, { x: 0, y: H }];
   const refl = (q) => { const d = 2 * sd(q); return { x: q.x - d * n.x, y: q.y - d * n.y }; };
-  return { sd, x, keep: clipPoly(rect, (q) => -sd(q)), flap: clipPoly(rect, sd).map(refl) };
+  return { sd, x, refl, keep: clipPoly(rect, (q) => -sd(q)), flap: clipPoly(rect, sd).map(refl) };
+}
+// As on the desk, a page the book carries over stands up as it crosses, its head corner below the head.
+function pkWithin(P) {
+  const far = { x: PK.W, y: 0 };
+  const w = hermite(clamp01((Math.hypot(P.x - far.x, P.y) - PK.H) / (PK.W / 5)), 0);
+  const out = (y) => { const F = pkFold({ x: P.x, y }); return F && F.sd(far) > 0 ? -F.refl(far).y : 0; };
+  if (w <= 0 || out(P.y) <= .5) return P;
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 12; i++) { const m = (lo + hi) / 2; if (out(lerp(P.y, PK.H, m)) > .5) lo = m; else hi = m; }
+  return { x: P.x, y: lerp(P.y, PK.H, w * hi) };
 }
 // The back of a leaf is its own paper, a shade darker.
 function pkBack(pg) {
@@ -1020,13 +1078,13 @@ function pkDraw(st, ear = false) {
   }
   if (top !== null) {
     if (F) {
-      show.set(top, { z: 4, clip: poly(F.keep.map(leaf)), shade: grad((e) => -F.sd(leaf(e)), [[0, ink(.18 * lam + .04)], [16 + 70 * lam, ink(0)]], PK.W, PK.H) });
-      if (top + 1 < NP) show.set(top + 1, { z: 3, shade: grad((e) => F.sd(leaf(e)), [[0, ink(.28 * lam + .06)], [20 + 130 * lam, ink(0)]], PK.W, PK.H) });
+      show.set(top, { z: 4, clip: poly(F.keep.map(leaf)), shade: grad((e) => -F.sd(leaf(e)), soft(.18 * lam + .04, 16 + 70 * lam), PK.W, PK.H) });
+      if (top + 1 < NP) show.set(top + 1, { z: 3, shade: grad((e) => F.sd(leaf(e)), soft(.28 * lam + .06, 20 + 130 * lam), PK.W, PK.H) });
     } else if (top + 1 < NP) show.set(top + 1, { z: 3 });
   }
   const back = (st.kind === "rest" && st.i === NP) || (top === NP - 1 && F) || (st.kind === "turn" && st.a === NP - 1 && !F && st.s > .5);
   setV(backcover, back);
-  if (back) { backcover.inert = !(st.kind === "rest" && st.i === NP); paint(backcover._shades[0], top === NP - 1 && F ? grad((e) => F.sd(leaf(e)), [[0, ink(.28 * lam + .06)], [20 + 130 * lam, ink(0)]], PK.W, PK.H) : ""); }
+  if (back) { backcover.inert = !(st.kind === "rest" && st.i === NP); paint(backcover._shades[0], top === NP - 1 && F ? grad((e) => F.sd(leaf(e)), soft(.28 * lam + .06, 20 + 130 * lam), PK.W, PK.H) : ""); }
   POCKET.forEach((pg, i) => {
     const sp = show.get(i), el = pg.el;
     setV(el, !!sp);
@@ -1039,8 +1097,8 @@ function pkDraw(st, ear = false) {
   if (F) {
     const W = PK.W, pts = F.flap.map(leaf).map((q) => ({ x: q.x + W, y: q.y }));
     setC(pkFlap, poly(pts));
-    pkFlap.style.background = `${grad((e) => -F.sd(leaf({ x: e.x - W, y: e.y })), [
-      [0, ink(.22 * lam + .05)], [4 + 6 * lam, light(0)], [14 + 30 * lam, light(.3 * lam)], [50 + 110 * lam, light(0)], [W * 1.2, ink(.12 * lam)]], 3 * W, PK.H)}, ${pkBack(POCKET[top])}`;
+    pkFlap.style.background = `${grad((e) => -F.sd(leaf({ x: e.x - W, y: e.y })),
+      roll(.22 * lam + .05, .3 * lam, 14 + 30 * lam, 50 + 110 * lam, W * 1.2, .12 * lam), 3 * W, PK.H)}, ${pkBack(POCKET[top])}`;
     setO(pkFlap, 1);
     setC(pkDrop, poly(pts.map((q) => ({ x: q.x + 3, y: q.y + 8 }))));
     setO(pkDrop, Math.min(.4, lam * .8 + .1));
@@ -1081,8 +1139,12 @@ function pkSettle(i, forward) {
   pkDraw(i < 0 ? { kind: "cover", p: 0 } : { kind: "rest", i }, true);
   handBack(Math.round(PK.top + yl));
 }
-function pkTurn(a, s0, s1) {
-  play(240 + 620 * Math.abs(s1 - s0), (t) => ({ kind: "turn", a, s: lerp(s0, s1, easeInOut(t)) }),
+// A whole page turned by a key or a tap is given a push; part of one, a gentler one. A swipe that lets
+// go sends it on at its own speed v (of s, per ms), and lets down the corner it held up or down by lift.
+function pkTurn(a, s0, s1, v, lift = 0) {
+  const d = Math.abs(s1 - s0), [ms, m] = v == null ? [240 + 620 * d, 1] : thrown(d, v * Math.sign(s1 - s0), 240 + 620 * d);
+  const ease = v == null && d === 1 ? pushed : (k) => hermite(k, m);
+  play(ms, (t) => { const e = ease(t); return { kind: "turn", a, s: lerp(s0, s1, e), lift: lift * (1 - e) }; },
     () => pkSettle(s1 > .5 ? a + 1 : a, s1 > .5), pkDraw);
 }
 function pkCover(p0, p1) {
@@ -1121,7 +1183,7 @@ stage.addEventListener("pointerdown", (e) => {
   if (S.mode !== "pocket" || e.button !== 0 || hands.mode === "anim" || hands.mode === "sync") return;
   // A stroke may start on a link: once it moves, the link's click is cancelled.
   if (e.target.closest("input, select, textarea, [contenteditable]")) return;
-  pkPress = { id: e.pointerId, x0: e.clientX, y0: e.clientY, track: [{ x: e.clientX, t: e.timeStamp }], g: null, s: null };
+  pkPress = { id: e.pointerId, x0: e.clientX, y0: e.clientY, track: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }], g: null, s: null };
 });
 addEventListener("pointermove", (e) => {
   if (S.mode !== "pocket" || !pkPress || e.pointerId !== pkPress.id) return;
@@ -1140,23 +1202,23 @@ addEventListener("pointermove", (e) => {
     try { stage.setPointerCapture(e.pointerId); } catch {}
     root.classList.add("is-dragging");
   }
-  pkPress.track.push({ x: e.clientX, t: e.timeStamp });
+  pkPress.track.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
   if (pkPress.track.length > 6) pkPress.track.shift();
   const toward = (RTL ? dx : -dx) / (PK.W * .85);
   pkPress.s = clamp01(pkPress.g.fwd ? toward : 1 + toward);
+  pkPress.dy = dy;
   pkDraw({ kind: "turn", a: pkPress.g.a, s: pkPress.s, lift: dy });
 });
 function pkRelease(e) {
   if (!pkPress || e.pointerId !== pkPress.id) return;
-  const { g, s, track } = pkPress;
+  const { g, s, dy, track } = pkPress;
   pkPress = null;
   root.classList.remove("is-dragging");
   if (!g) return;
   suppressClick();
-  const first = track[0], last = track[track.length - 1];
-  const v = (RTL ? 1 : -1) * (last.x - first.x) / Math.max(8, last.t - first.t);   // px per ms towards the spine
+  const v = (RTL ? 1 : -1) * handSpeed(track, e).x;   // px per ms towards the spine
   const on = v > .3 ? true : v < -.3 ? false : s > .5;
-  pkTurn(g.a, s ?? (g.fwd ? 0 : 1), on ? 1 : 0);
+  pkTurn(g.a, s ?? (g.fwd ? 0 : 1), on ? 1 : 0, v / (PK.W * .85), dy || 0);
 }
 addEventListener("pointerup", pkRelease);
 addEventListener("pointercancel", pkRelease);
