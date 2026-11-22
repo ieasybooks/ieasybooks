@@ -8,8 +8,10 @@ const LOCALE = root.lang === "ar" ? "ar" : "en";
 const RTL = root.dir === "rtl";
 
 const STR = {
-  ar: { notes: "شروحات", yt: "، فيديو على يوتيوب", menu: "الفهرس", next: "التالي:", end: "خاتمة" },
-  en: { notes: "Tutorials", yt: ", video on YouTube", menu: "Contents", next: "Next:", end: "Colophon" },
+  ar: { notes: "شروحات", yt: "، فيديو على يوتيوب", menu: "الفهرس", next: "التالي:", end: "خاتمة", latest: "أحدث المشاريع", all: "الفهرس كاملًا",
+    count: (n) => n === 1 ? "مشروع واحد" : n === 2 ? "مشروعان" : `${fmt(n, "ar")} ${n % 100 >= 3 && n % 100 <= 10 ? "مشاريع" : "مشروعًا"}` },
+  en: { notes: "Tutorials", yt: ", video on YouTube", menu: "Contents", next: "Next:", end: "Colophon", latest: "Latest projects", all: "Full contents",
+    count: (n) => `${n} project${n === 1 ? "" : "s"}` },
 }[LOCALE];
 const ORDINAL = {
   ar: ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر"],
@@ -72,12 +74,20 @@ tshadow.append(tshadowIn);
 const hero = $(".hero");
 const coverRunway = h("div", { class: "cover-runway" });
 cover.before(coverRunway); coverRunway.append(cover, hero);
-// Beside the closed book, the projects it holds, each in its chapter's colour.
-$("#hero-list").append(...projects.map((p) => h("li", { style: `--ch:${p.color}` },
+// Beside the closed book, its newest chapters, each in its colour, and the way to all of them.
+const NEWEST = 3;
+const heroList = $("#hero-list");
+heroList.before(h("p", { class: "hero__head", id: "hero-latest" }, STR.latest));
+heroList.setAttribute("aria-labelledby", "hero-latest");
+heroList.append(...[...projects].sort((a, b) => b.date.localeCompare(a.date)).slice(0, NEWEST).map((p) => h("li", { style: `--ch:${p.color}` },
   h("a", { href: `#${p.slug}`, "data-slug": p.slug },
     h("span", { class: "hero__dot", "aria-hidden": "true" }),
     h("span", { class: "hero__name" }, p[`name_${LOCALE}`]),
     h("time", { datetime: p.date }, p[`meta_${LOCALE}`].split(" — ")[0])))));
+heroList.after(h("p", { class: "hero__more" }, h("a", { href: "#opening", "data-slug": "opening" },
+  h("span", { class: "hero__name" }, STR.all),
+  h("span", { class: "hero__count" }, STR.count(projects.length)),
+  h("span", { class: "hero__arrow", "aria-hidden": "true" }))));
 // A gold ribbon marks the place.
 const ribbon = h("span", { class: "ribbon", "aria-hidden": "true" });
 sheet.append(ribbon);
@@ -194,8 +204,9 @@ function openingSpread() {
   rows.push({ slug: "colophon", title: STR.end, n: 2 * projects.length + 4 });
   const plate = h("div", { class: "pg pg--contents pg--plate" },
     h("div", { class: "opening__body" }, h("h2", { class: "opening__contents" }, STR.menu),
-      h("ol", { class: "opening__list" }, rows.map(r => h("li", { style: r.color ? `--ch:${r.color}` : null }, h("a", { href: `#${r.slug}`, "data-slug": r.slug },
-        h("span", { class: "opening__dot", "aria-hidden": "true" }), h("span", { class: "opening__name" }, r.title), h("span", { class: "opening__folio" }, fmt(r.n, LOCALE))))))), folio(2), shade());
+      h("ol", { class: "opening__list" }, rows.map(r => h("li", { style: r.color ? `--ch:${r.color}` : null, class: r.color ? null : "opening__end" }, h("a", { href: `#${r.slug}`, "data-slug": r.slug },
+        h("span", { class: "opening__dot", "aria-hidden": "true" }), h("span", { class: "opening__name" }, r.title),
+        h("span", { class: "opening__lead", "aria-hidden": "true" }), h("span", { class: "opening__folio" }, fmt(r.n, LOCALE))))))), folio(2), shade());
   const el = h("section", { class: "spread spread--opening", id: "opening", "aria-label": STR.menu }, text, plate);
   return { el, text, plate, isOpening: true, slug: "opening", name: STR.menu, beats: 0 };
 }
@@ -237,9 +248,10 @@ document.body.append(nav);
 const entries = spreads.filter(sp => !sp.isOpening && !sp.isEndpaper);
 const navList = h("ol", { class: "index__list", id: "index-list" }, entries.map(sp =>
   h("li", { style: sp.project ? `--ch:${sp.project.color}` : null },
-    h("a", { href: `#${sp.slug}`, "data-slug": sp.slug }, h("span", { class: "index__dot", "aria-hidden": "true" }), sp.name))));
+    h("a", { href: `#${sp.slug}`, "data-slug": sp.slug }, h("span", { class: "index__dot", "aria-hidden": "true" }), h("span", { class: "index__name" }, sp.name)))));
 const navNow = h("span", { class: "index__now", "aria-hidden": "true" }, entries.map(sp => h("span", {}, sp.name)));
-const navToggle = h("button", { class: "index__toggle", type: "button", "aria-label": STR.menu, "aria-expanded": "false", "aria-controls": "index-list" }, navNow);
+const navToggle = h("button", { class: "index__toggle", type: "button", "aria-label": STR.menu, "aria-expanded": "false", "aria-controls": "index-list" },
+  navNow, h("span", { class: "index__chev", "aria-hidden": "true" }));
 nav.append(navToggle, navList);
 const closeNav = () => { nav.classList.remove("is-open"); navToggle.setAttribute("aria-expanded", "false"); };
 const navLinks = [...navList.querySelectorAll("a")];
@@ -358,14 +370,21 @@ function fitPages() {
   }
   // The hero beside the closed book and the contents page give back their lift the same way: each is a
   // centred column that must not outgrow its box.
-  for (const col of [hero, $(".pg--contents .opening__body")]) {
+  const spills = (col) => col.lastElementChild.getBoundingClientRect().bottom - col.firstElementChild.getBoundingClientRect().top > col.getBoundingClientRect().height;
+  const contents = $(".pg--contents .opening__body");
+  for (const col of [hero, contents]) {
     col.style.removeProperty("--lift");
     if (S.lay !== "sheet") continue;
-    const spills = () => col.lastElementChild.getBoundingClientRect().bottom - col.firstElementChild.getBoundingClientRect().top > col.getBoundingClientRect().height;
-    for (let l = S.lift; spills() && l > 1;) {
+    for (let l = S.lift; spills(col) && l > 1;) {
       l = Math.max(1, l - .02);
       col.style.setProperty("--lift", l);
     }
+  }
+  // A contents page that still runs long, as the book gains chapters, sets its lines closer.
+  contents.style.removeProperty("--tight");
+  if (S.lay !== "fluid") for (let t = 1; spills(contents) && t > .7;) {
+    t = Math.max(.7, t - .02);
+    contents.style.setProperty("--tight", t);
   }
 }
 
@@ -1235,7 +1254,7 @@ function jumpTo(el) {
   return true;
 }
 document.addEventListener("click", e => {
-  const a = e.target.closest(".index a[data-slug], .opening__list a[data-slug], .hero__list a[data-slug], .topbar a[data-slug], a.catch");
+  const a = e.target.closest(".index a[data-slug], .opening__list a[data-slug], .hero__list a[data-slug], .hero__more a[data-slug], .topbar a[data-slug], a.catch");
   if (!a) return;
   const slug = a.dataset.slug || a.dataset.next;
   closeNav();
@@ -1253,6 +1272,13 @@ navToggle.addEventListener("click", () => {
 nav.addEventListener("click", (e) => {
   if (e.target === nav) closeNav();
 });
+// While they are open the book beneath holds still: only a list that overflows may scroll.
+const holdStill = (e) => {
+  if (!nav.classList.contains("is-open")) return;
+  if (!navList.contains(e.target) || navList.scrollHeight <= navList.clientHeight) e.preventDefault();
+};
+nav.addEventListener("touchmove", holdStill, { passive: false });
+nav.addEventListener("wheel", holdStill, { passive: false });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { closeNav(); return; }
   if ((S.mode !== "desk" && S.mode !== "pocket") || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
