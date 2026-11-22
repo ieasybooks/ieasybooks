@@ -695,6 +695,63 @@ html.lay-pocket { height:100%; overflow:hidden; }
 .is-narrow .m-at__text { font-size:13px; }
 .is-narrow .m-at__f { font-size:12px; padding-inline:6px; }
 
+/* 9. Musicless: hear the difference. The music is amber;
+   the voices, and everything Musicless does, are in the chapter's colour. */
+.m-ml { --music:#b07d3a; overflow:visible; }
+.m-ml__flow { inset-inline:0; top:0; display:flex; flex-direction:column; }
+.m-ml__flow > * { position:relative; }
+.ml-glyph { display:block; width:1em; height:1em; fill:currentColor; overflow:visible; }
+.ml-glyph__cut { fill:none; stroke:#000; stroke-width:3.9; stroke-dasharray:1 1; stroke-dashoffset:calc(1 - var(--strike,0)); }
+.ml-glyph__strike { fill:none; stroke:currentColor; stroke-width:2; stroke-dasharray:1 1; stroke-dashoffset:calc(1 - var(--strike,0)); }
+.m-ml__spin { display:none; flex:none; width:14px; height:14px; border:2px solid color-mix(in srgb,currentColor 30%,transparent); border-top-color:currentColor; border-radius:50%; animation:ml-spin .8s linear infinite; }
+.is-working .m-ml__spin { display:block; }
+.is-working .ml-glyph { display:none; }
+@keyframes ml-spin { to { transform:rotate(1turn); } }
+
+/* two waves, the voices and the music */
+.m-ml__src { color:var(--t3); font:400 calc(16px * var(--lift))/1.5 var(--f-ui); }
+.m-ml__title { color:var(--t2); font-weight:500; }
+.m-ml__lanes { display:flex; flex-direction:column; gap:calc(18px / var(--lift)); margin-top:calc(22px / var(--lift)); }
+.m-ml__lab { display:flex; align-items:center; gap:8px; color:var(--t2); font:500 calc(17px * var(--lift))/1.4 var(--f-ui); }
+.m-ml__dot { width:10px; height:10px; border-radius:50%; background:var(--ch); }
+.m-ml__lg { color:var(--music); font-size:17px; }
+.m-ml__track { position:relative; height:92px; margin-top:10px; }
+.m-ml__keep { position:absolute; inset:0; }
+.m-ml__wave { position:absolute; inset:0; display:flex; align-items:center; gap:2px; color:color-mix(in srgb,var(--ch) 15%,var(--paper)); }
+.m-ml__wave i { flex:1; height:calc(max(var(--v), .04) * 100%); border-radius:2px; background:currentColor; }
+.m-ml__wave--lit { color:var(--ch); }
+.m-ml__lane--music .m-ml__wave { color:color-mix(in srgb,var(--music) 26%,var(--paper)); }
+.m-ml__lane--music .m-ml__wave--lit,.m-ml__lane--music .m-ml__wave--flat { color:var(--music); }
+.m-ml__head { position:absolute; top:-6px; bottom:-6px; inset-inline-start:calc(var(--f,0) * 100%); width:2px; margin-inline-start:-1px; border-radius:1px; background:var(--t1); }
+.m-ml__notice { align-self:flex-start; display:flex; align-items:center; gap:8px; margin-top:calc(24px / var(--lift)); padding:7px 16px; border-radius:999px; background:var(--ch); color:var(--on); font:500 calc(16px * var(--lift))/1.4 var(--f-ui); }
+.m-ml__notice .ml-glyph { font-size:16px; }
+.m-ml__player { display:flex; align-items:center; gap:14px; margin-top:calc(22px / var(--lift)); }
+.m-ml__play { position:relative; flex:none; width:calc(40px + 12px * var(--lift)); aspect-ratio:1; border:0; border-radius:50%; background:var(--ch); cursor:pointer; transition:transform .15s var(--ease); }
+.m-ml__play:hover { transform:scale(1.06); }
+.m-ml__play:focus-visible { outline:2px solid var(--ch); outline-offset:3px; border-radius:50%; }
+.m-ml__play::before { content:""; position:absolute; inset:0; margin:auto; width:0; height:0; translate:2px 0; border-style:solid; border-width:9px 0 9px 15px; border-color:transparent transparent transparent var(--on); }
+:root:lang(ar) .m-ml__play::before { scale:-1 1; translate:-2px 0; }
+.m-ml__play.is-playing::before { width:14px; height:16px; translate:0; scale:1; border:solid var(--on); border-width:0 5px; }
+.m-ml__seg { position:relative; display:grid; grid-template-columns:1fr 1fr; padding:3px; border-radius:999px; background:var(--raised); }
+.m-ml__thumb { position:absolute; top:3px; bottom:3px; inset-inline-start:3px; width:calc(50% - 3px); border-radius:999px; background:var(--ch); transform:translateX(calc(var(--x,0) * 100%)); transition:transform .25s var(--ease); }
+:root:lang(ar) .m-ml__thumb { transform:translateX(calc(var(--x,0) * -100%)); }
+.m-ml__opt { position:relative; padding:8px 16px; border:0; border-radius:999px; background:none; color:var(--t2); font:500 calc(16px * var(--lift))/1.3 var(--f-ui); white-space:nowrap; cursor:pointer; transition:color .2s; }
+.m-ml__opt[aria-pressed="true"] { color:var(--on); }
+.m-ml__opt:focus-visible { outline-color:var(--ch); border-radius:999px; }
+.m-ml__time { margin-inline-start:auto; flex:none; color:var(--t3); font:400 calc(15px * var(--lift))/1 var(--f-ui); font-variant-numeric:tabular-nums; }
+.is-narrow .m-ml__src { font-size:12px; }
+.is-narrow .m-ml__lanes { gap:12px; margin-top:14px; }
+.is-narrow .m-ml__lab { font-size:12.5px; }
+.is-narrow .m-ml__track { height:50px; margin-top:6px; }
+.is-narrow .m-ml__wave { gap:1px; }
+.is-narrow .m-ml__notice { margin-top:14px; padding:5px 11px; font-size:12px; }
+.is-narrow .m-ml__player { gap:8px; margin-top:16px; }
+.is-narrow .m-ml__play { width:40px; }
+.is-narrow .m-ml__play::before { border-width:7px 0 7px 12px; }
+.is-narrow .m-ml__play.is-playing::before { width:11px; height:13px; border-width:0 4px; }
+.is-narrow .m-ml__opt { padding:6px 9px; font-size:12px; }
+.is-narrow .m-ml__time { font-size:11px; }
+
 /* fallback plate: a screenshot, or the logo on a small tile */
 .m-fb { display:grid; place-items:center; }
 .m-fb--shot { display:block; border-radius:12px; box-shadow:inset 0 0 0 1px var(--line); }

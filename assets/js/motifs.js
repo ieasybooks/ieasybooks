@@ -812,8 +812,217 @@ const tools = {
   },
 };
 
+/* ====================================================== 9. MUSICLESS ==
+   Musicless removes most of the music from YouTube videos and keeps the voices. The plate uses the
+   launch film's demo: ten seconds of Kurzgesagt's "The Largest Star in the Universe", each page in its
+   own language's upload, heard as it is and with the music removed by Musicless's own model (its
+   tests/reference.py, which runs what the extension runs). Its words are the extension's own (its
+   _locales). */
+// Voice and music level per bar (0–1, on a 36 dB scale); `cut` is the narrator's pause where the
+// film turns Musicless on.
+const ML_DEMO = {
+  ar: { length: 10.1, cut: 7.7,
+    voice: [0, 0.8, 0.87, 0.91, 0.76, 0.85, 0.9, 0.79, 0.75, 0.77, 0.86, 0.84, 0.75, 0.88, 0.71, 0.71, 0.91, 0.87, 0.92, 0.82, 0.88, 0.74, 0.87, 0.78, 0.82, 0.67, 0.89, 0.78, 0.89, 0.9, 0.77, 0.74, 0.68, 0.71, 0.67, 0.5, 0.39, 0.0, 0.62, 0.59, 0.84, 0.77, 0.86, 0.81, 0.9, 0.49, 0.7, 0.82, 0.93, 0.79, 0.86, 0.84, 0.88, 0.76, 0.76, 0.74, 0.68, 0.68, 0.39, 0.0],
+    music: [0.57, 0.54, 0.55, 0.53, 0.61, 0.58, 0.57, 0.52, 0.57, 0.56, 0.56, 0.58, 0.73, 0.8, 0.83, 0.8, 0.73, 0.72, 0.72, 0.72, 0.73, 0.72, 0.7, 0.74, 0.77, 0.73, 0.81, 0.78, 0.72, 0.71, 0.75, 0.78, 0.78, 0.76, 0.77, 0.8, 0.77, 0.8, 0.86, 0.82, 0.73, 0.77, 0.73, 0.71, 0.73, 0.75, 0.69, 0.67, 0.6, 0.47, 0.39, 0.36, 0.19, 0.42, 0.93, 0.86, 0.86, 0.85, 0.78, 0.73] },
+  en: { length: 9.95, cut: 6.35,
+    voice: [0.53, 0.94, 0.9, 0.96, 0.82, 0.92, 0.76, 0.77, 0.77, 0.9, 0.79, 0.81, 0.79, 0.63, 0.74, 0.72, 0.82, 0.28, 0.66, 0.84, 0.83, 0.74, 0.67, 0.67, 0.71, 0.52, 0.73, 0.83, 0.84, 0.79, 0.61, 0.74, 0.59, 0.68, 0.65, 0.68, 0.28, 0, 0.11, 0.83, 0.49, 0.73, 0.8, 0.77, 0.19, 0.34, 0.98, 0.88, 0.7, 0.84, 0.81, 0.77, 0.79, 0.67, 0.49, 0.85, 0.89, 0.76, 0.53, 0.0],
+    music: [0.58, 0.57, 0.52, 0.54, 0.58, 0.53, 0.59, 0.56, 0.53, 0.56, 0.56, 0.63, 0.78, 0.79, 0.76, 0.73, 0.71, 0.75, 0.73, 0.75, 0.75, 0.75, 0.74, 0.78, 0.8, 0.79, 0.78, 0.79, 0.69, 0.75, 0.75, 0.73, 0.76, 0.78, 0.8, 0.77, 0.8, 0.81, 0.83, 0.75, 0.76, 0.78, 0.69, 0.77, 0.75, 0.74, 0.66, 0.63, 0.6, 0.53, 0.39, 0.38, 0.22, 0.67, 0.93, 0.86, 0.83, 0.86, 0.78, 0.75] },
+};
+const ML = {
+  ar: { source: "النجم الأكبر في الكون", channel: "بكل بساطة – Kurzgesagt", voices: "الأصوات", music: "الموسيقى",
+    original: "الصوت الأصلي", musicless: "بلا موسيقى", sound: "الصوت", working: "جارٍ إزالة الموسيقى", done: "إزالة الموسيقى مفعّلة",
+    listen: "استمع إلى المقطع", stop: "أوقف الاستماع" },
+  en: { source: "The Largest Star in the Universe", channel: "Kurzgesagt – In a Nutshell", voices: "Voices", music: "Music",
+    original: "Original", musicless: "Musicless", sound: "Sound", working: "Removing music", done: "Music removal is on",
+    listen: "Listen to the clip", stop: "Stop listening" },
+};
+const mlClock = (sec, locale) => timecode(`0:${String(Math.floor(sec + 0.06)).padStart(2, "0")}`, locale);
+
+// The extension's player glyph (its player-glyph.js, on YouTube's 24-unit grid): a note, struck
+// through while Musicless removes the music. --strike (0–1) draws the strike and the gap beside it.
+let mlIds = 0;
+function mlGlyph(cls = "") {
+  const id = `ml-cut-${++mlIds}`;
+  const svg = s("svg", { class: `ml-glyph ${cls}`, viewBox: "0 0 24 24", "aria-hidden": "true" });
+  const defs = s("defs"), mask = s("mask", { id, maskUnits: "userSpaceOnUse", x: -2, y: -2, width: 28, height: 28 });
+  mask.append(s("rect", { x: -2, y: -2, width: 28, height: 28, fill: "#fff" }), s("path", { class: "ml-glyph__cut", d: "M3.58 2.12 21.58 20.12", pathLength: 1 }));
+  defs.append(mask);
+  const note = s("g", { mask: `url(#${id})` });
+  note.append(s("circle", { cx: 9.2, cy: 17.9, r: 4.2 }), s("rect", { x: 11.4, y: 1.9, width: 2, height: 16 }), s("rect", { x: 11.4, y: 1.9, width: 6.4, height: 4.4 }));
+  svg.append(defs, note, s("path", { class: "ml-glyph__strike", d: "M3.4 2.3 21.4 20.3", pathLength: 1 }));
+  return svg;
+}
+// Keep the part [a, b] of a box along its inline axis (inline-start is the right edge in RTL).
+const mlKeep = (rtl, a, b) => {
+  const head = (clamp01(a) * 100).toFixed(2), tail = ((1 - clamp01(b)) * 100).toFixed(2);
+  return rtl ? `inset(-4px ${head}% -4px ${tail}%)` : `inset(-4px ${tail}% -4px ${head}%)`;
+};
+
+// The demo's two recordings, decoded once and started together, so a switch between them is
+// instant and lands on the same syllable: the original, and the voices Musicless keeps.
+const mlBuffers = {};
+let mlAC = null, mlNow = null;
+function mlSound(locale, onStop) {
+  const me = { playing: false, musicless: false, at: Infinity, nodes: null };
+  me.start = (musicless) => {
+    mlAC = mlAC || new (window.AudioContext || window.webkitAudioContext)();
+    mlAC.resume();
+    if (mlNow && mlNow !== me) mlNow.stop();
+    mlNow = me;
+    Object.assign(me, { playing: true, musicless, at: Infinity });
+    mlBuffers[locale] = mlBuffers[locale] || Promise.all(["original", "voices"].map((k) =>
+      fetch(`/assets/audio/musicless-demo-${locale}-${k}.m4a`).then((r) => r.arrayBuffer()).then((b) => mlAC.decodeAudioData(b))));
+    mlBuffers[locale].then((bufs) => {
+      if (!me.playing) return;
+      const at = mlAC.currentTime + 0.06;
+      me.nodes = bufs.map((buf, i) => {
+        const src = mlAC.createBufferSource(), g = mlAC.createGain();
+        src.buffer = buf;
+        g.gain.value = (i === 1) === me.musicless ? 1 : 0;
+        src.connect(g).connect(mlAC.destination);
+        src.start(at);
+        return { src, g };
+      });
+      me.nodes[0].src.onended = () => me.stop(true);
+      me.at = at;
+    }).catch(() => { delete mlBuffers[locale]; me.stop(); });
+  };
+  me.set = (musicless) => {
+    me.musicless = musicless;
+    me.nodes?.forEach(({ g }, i) => g.gain.setTargetAtTime((i === 1) === musicless ? 1 : 0, mlAC.currentTime, 0.012));
+  };
+  me.time = () => (me.playing && mlAC ? Math.max(0, mlAC.currentTime - me.at) : 0);
+  me.stop = (ended = false) => {
+    if (!me.playing) return;
+    me.playing = false;
+    me.nodes?.forEach(({ src }) => { src.onended = null; try { src.stop(); } catch {} });
+    me.nodes = null;
+    if (mlNow === me) mlNow = null;
+    onStop(ended);
+  };
+  return me;
+}
+addEventListener("pagehide", () => mlNow?.stop());
+
+// What a Musicless plate shows at a moment: the clip's second t, whether the music is removed (d,
+// 0–1, eased in), and the notice. Scrolling plays the film's demo: the clip with its music up to the
+// narrator's pause, a wait while the music is removed, then the rest with the voices alone. A play
+// button plays it for real, and removes the music at the same pause unless the reader chose.
+function mlState(D) {
+  const st = { p: 0, chosen: null, heard: false, d: 0, last: 0, raf: 0, snd: null, render: null };
+  st.target = () => (st.chosen ?? (st.snd?.playing ? st.snd.musicless : st.heard ? true : null));
+  st.at = (p, a = 0.36, b = 0.5) => (p < a ? lerp(0, D.cut, seg(p, 0.02, a)) : lerp(D.cut, D.length, seg(p, b, 0.86)));
+  st.step = () => {
+    const now = performance.now(), dt = Math.min(0.05, (now - (st.last || now)) / 1000);
+    st.last = now;
+    const snd = st.snd;
+    if (snd.playing && st.chosen == null && !snd.musicless && snd.time() >= D.cut) snd.set(true);
+    const want = st.target();
+    if (want != null) st.d += Math.max(-dt / 0.45, Math.min(dt / 0.45, (want ? 1 : 0) - st.d));
+    return want;
+  };
+  st.loop = () => {
+    cancelAnimationFrame(st.raf);
+    const go = () => {
+      st.render();
+      const want = st.target();
+      if (st.snd.playing || (want != null && Math.abs(st.d - (want ? 1 : 0)) > 0.001)) st.raf = requestAnimationFrame(go);
+    };
+    go();
+  };
+  return st;
+}
+
+/* Hear the difference. The clip's voices and its music as two waves: scrolling plays it, then the
+   music drains away and the voices go on alone. The play button and the switch play it for real. */
+const unmix = {
+  beats: 3,
+  size: { wide: PLATE, narrow: NARROW },
+  create(ctx) {
+    const L = ML[ctx.locale], D = ML_DEMO[ctx.locale];
+    const el = h("div", { class: "m m-ml m-ml--unmix" });
+    const st = mlState(D);
+    st.snd = mlSound(ctx.locale, (ended) => { if (ended) st.heard = true; st.loop(); });
+    const wave = (vals, cls) => h("span", { class: `m-ml__wave ${cls}` }, vals.map((v) => h("i", { style: `--v:${v}` })));
+    st.render = () => {
+      if (!st.ui) return;
+      const p = st.p, snd = st.snd;
+      const want = st.step();
+      const t = snd.playing ? snd.time() : st.heard ? D.length : st.at(p);
+      let d = st.d, notice = want ? 2 : 0;
+      if (want == null) { d = easeInOut(seg(p, 0.48, 0.66)); st.d = d; notice = p >= 0.38 && p < 0.5 ? 1 : p >= 0.5 ? 2 : 0; }
+      const f = clamp01(t / D.length), u = st.ui;
+      setC(u.vLit, mlKeep(ctx.rtl, 0, f));
+      setC(u.mLit, mlKeep(ctx.rtl, 0, f));
+      setC(u.mKeep, mlKeep(ctx.rtl, d, 1));
+      setC(u.mFlat, mlKeep(ctx.rtl, 0, d));
+      u.heads.forEach((x) => setVar(x, "--f", f.toFixed(4)));
+      setVar(u.mGlyph, "--strike", d.toFixed(3));
+      setVar(u.noteGlyph, "--strike", (notice === 2 ? 1 : 0).toFixed(0));
+      u.notice.classList.toggle("is-working", notice === 1);
+      setText(u.noticeText, notice === 1 ? L.working : L.done);
+      ink(u.notice, notice ? 1 : 0, 4);
+      const on = want ?? p >= 0.44;
+      setVar(u.seg, "--x", on ? "1" : "0");
+      u.opts.forEach((b, i) => b.setAttribute("aria-pressed", String((i === 1) === on)));
+      setText(u.now, mlClock(t, ctx.locale));
+      u.play.classList.toggle("is-playing", snd.playing);
+      u.play.setAttribute("aria-label", snd.playing ? L.stop : L.listen);
+    };
+    const toggle = () => {
+      if (st.snd.playing) { st.snd.stop(); return; }
+      st.heard = false;
+      st.snd.start(st.chosen ?? false);
+      st.loop();
+    };
+    const choose = (musicless) => {
+      st.chosen = musicless;
+      st.snd.set(musicless);
+      st.loop();
+    };
+    return {
+      el,
+      mount() {
+        el.textContent = "";
+        const vLit = wave(D.voice, "m-ml__wave--lit"), mLit = wave(D.music, "m-ml__wave--lit");
+        const mKeep = h("span", { class: "m-ml__keep" }, wave(D.music, ""), mLit);
+        const mFlat = wave(D.music.map((v) => +(v * 0.08).toFixed(3)), "m-ml__wave--flat");
+        const heads = [h("span", { class: "m-ml__head" }), h("span", { class: "m-ml__head" })];
+        const mGlyph = mlGlyph("m-ml__lg");
+        const noteGlyph = mlGlyph("m-ml__ng");
+        const noticeText = h("span", {});
+        const notice = h("p", { class: "m-ml__notice", "aria-hidden": "true" }, h("span", { class: "m-ml__spin" }), noteGlyph, noticeText);
+        const play = h("button", { class: "m-ml__play", type: "button", "aria-label": L.listen });
+        play.addEventListener("click", toggle);
+        const opts = [L.original, L.musicless].map((txt, i) => {
+          const b = h("button", { class: "m-ml__opt", type: "button", "aria-pressed": "false" }, txt);
+          b.addEventListener("click", () => choose(i === 1));
+          return b;
+        });
+        const segEl = h("div", { class: "m-ml__seg", role: "group", "aria-label": L.sound }, h("span", { class: "m-ml__thumb", "aria-hidden": "true" }), opts);
+        const now = h("span", {});
+        el.append(h("div", { class: "m-ml__flow m-fit" },
+          h("p", { class: "m-ml__src", "aria-hidden": "true" }, h("span", { class: "m-ml__title" }, L.source), " · ", L.channel),
+          h("div", { class: "m-ml__lanes", "aria-hidden": "true" },
+            h("div", { class: "m-ml__lane m-ml__lane--voice" },
+              h("p", { class: "m-ml__lab" }, h("span", { class: "m-ml__dot" }), L.voices),
+              h("div", { class: "m-ml__track" }, wave(D.voice, ""), vLit, heads[0])),
+            h("div", { class: "m-ml__lane m-ml__lane--music" },
+              h("p", { class: "m-ml__lab" }, mGlyph, L.music),
+              h("div", { class: "m-ml__track" }, mKeep, mFlat, heads[1]))),
+          notice,
+          h("div", { class: "m-ml__player" }, play, segEl,
+            h("span", { class: "m-ml__time", "aria-hidden": "true" }, now, " / ", mlClock(D.length, ctx.locale)))));
+        st.ui = { vLit, mLit, mKeep, mFlat, heads, mGlyph, noteGlyph, notice, noticeText, seg: segEl, opts, now, play };
+        st.render();
+      },
+      update(p) { st.p = p; st.render(); },
+    };
+  },
+};
+
 /* ===================================================== the registry */
-export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools };
+export const motifs = { qa, timeline, transcribe, search, ocr, library, diacritize, tools, unmix };
 
 /* A project without a motif: its screenshot as a plate, otherwise its logo on a small tile. */
 export function fallbackPlate(project, locale) {
